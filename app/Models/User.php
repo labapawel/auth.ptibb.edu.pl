@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'permission',
     ];
 
     /**
@@ -42,4 +43,53 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the working hours for the user.
+     */
+    public function workingHours()
+    {
+        return $this->hasMany(WorkingHours::class);
+    }
+    
+    /**
+     * Check if user has a specific permission
+     * 
+     * @param int $permission
+     * @return bool
+     */
+    public function hasPermission($permission)
+    {
+        return ($this->permissions & $permission) === $permission;
+    }
+
+    /**
+     * Check if user is a regular user
+     * 
+     * @return bool
+     */
+    public function isUser()
+    {
+        return $this->hasPermission(1);
+    }
+
+    /**
+     * Check if user is an admin
+     * 
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->hasPermission(2);
+    }
+
+    /**
+     * Check if user is a superadmin
+     * 
+     * @return bool
+     */
+    public function isSuperAdmin()
+    {
+        return $this->hasPermission(4);
+    }
 }

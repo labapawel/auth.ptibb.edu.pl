@@ -17,7 +17,14 @@ class Users extends Section implements Initializable
     protected $checkAccess = false;
 
     public function initialize() {
-        $this->title =  __('lang.title.users');
+        $this->title = __('lang.title.users');
+    
+        // Add this to restrict access to admin users only
+        $this->addToNavigation()
+            ->setPriority(100)
+            ->setAccessLogic(function() {
+                return auth()->user()->permission === 32; // Only admin
+            });
       }
   
     /**
@@ -74,9 +81,11 @@ class Users extends Section implements Initializable
         $pola[] = \AdminFormElement::password('password', 'Hasło');
 
         $pola[]=             \AdminFormElement::select('permission', 'Rola', [
-            '1' => 'User',
-            '2' => 'Admin',
-            '4' => 'SuperAdmin',
+            '1' => 'VPN',
+            '2' => 'Task',
+            '3' => 'PC',
+            '4' => 'Email',
+            '32' => 'Admin',
         
         ]);
 

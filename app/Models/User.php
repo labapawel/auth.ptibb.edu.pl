@@ -17,6 +17,12 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    const PERMISSION_VPN_CLIENT = 1;   // 0001
+    const PERMISSION_TASK = 2;         // 0010
+    const PERMISSION_PC = 4;           // 0100
+    const PERMISSION_EMAIL = 8;        // 1000
+    const PERMISSION_ADMIN = 32;       // 100000
+
     protected $fillable = [
         'name',
         'email',
@@ -51,31 +57,52 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return ($this->permissions & $permission) === $permission;
+        return (bool) ($this->permission & $permission);
     }
 
     public function isVPNclient()
     {
-        return $this->hasPermission(1);//   true | false
+        return $this->hasPermission(self::PERMISSION_VPN_CLIENT);
     }
 
     public function isTaskPermission()
     {
-        return $this->hasPermission(2);//   true | false
+        return $this->hasPermission(self::PERMISSION_TASK);
     }
-    
+
     public function isPC()
     {
-        return $this->hasPermission(3);//   true | false
+        return $this->hasPermission(self::PERMISSION_PC);
     }
 
     public function isEmailPermission()
     {
-        return $this->hasPermission(4);//   true | false
+        return $this->hasPermission(self::PERMISSION_EMAIL);
     }
 
     public function isAdmin()
     {
-        return $this->hasPermission(32);//   true | false
+        return $this->hasPermission(self::PERMISSION_ADMIN);
     }
+    public function addPermission($permission)
+    {
+        $this->permission |= $permission;
+        return $this;
+    }
+
+    public function removePermission($permission)
+    {
+        $this->permission &= ~$permission;
+        return $this;
+    }
+    
+    public function setPermissions(array $permissions): self
+    {
+        $this->permission = 0; // Resetuj istniejące uprawnienia
+        foreach ($permissions as $permission) {
+            $this->addPermission($permission);
+        }
+        return $this;
+    }
+
 }

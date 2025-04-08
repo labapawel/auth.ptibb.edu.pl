@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return (bool) ($this->permission & $permission);
+        return ($this->permission & $permission) == $permission;
     }
 
     public function isVPNclient()
@@ -84,25 +84,31 @@ class User extends Authenticatable
     {
         return $this->hasPermission(self::PERMISSION_ADMIN);
     }
-    public function addPermission($permission)
+    public function allPermissions()
     {
-        $this->permission |= $permission;
-        return $this;
-    }
-
-    public function removePermission($permission)
-    {
-        $this->permission &= ~$permission;
-        return $this;
-    }
-    
-    public function setPermissions(array $permissions): self
-    {
-        $this->permission = 0; // Resetuj istniejące uprawnienia
-        foreach ($permissions as $permission) {
-            $this->addPermission($permission);
+        $permissions = [];
+        if ($this->isVPNclient()) {
+            $permissions[] = self::PERMISSION_VPN_CLIENT;
         }
-        return $this;
+        if ($this->isTaskPermission()) {
+            $permissions[] = self::PERMISSION_TASK;
+        }
+        if ($this->isPC()) {
+            $permissions[] = self::PERMISSION_PC;
+        }
+        if ($this->isEmailPermission()) {
+            $permissions[] = self::PERMISSION_EMAIL;
+        }
+        if ($this->isAdmin()) {
+            $permissions[] = self::PERMISSION_ADMIN;
+        }
+        return $permissions;
     }
-
+    public function setPermissionAttribute($permissions)
+    {
+        $this->attributes['permission'] = 0;
+        foreach ($permissions as $permission) {
+            $this->attributes['permission'] |= $permission;
+        }
+    }
 }

@@ -9,7 +9,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-
+        
         <!-- Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -17,11 +17,11 @@
         <div class="min-h-screen flex flex-col items-center pt-6 sm:pt-0">
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
                 @auth
-                    <div class="text-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Welcome, {{ Auth::user()->name }}</h1>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">You are logged in!</p>
-                    </div>
-
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Welcome, {{ Auth::user()->name }}</h1>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">You are logged in!</p>
+                </div>
+                
                     <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
                         @if(Auth::user()->isTaskPermission())
                             <div class="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-lg">

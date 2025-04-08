@@ -11,7 +11,7 @@ class Users extends Section implements Initializable
 {
     protected $title;
     protected $checkAccess = false;
-
+    
     public function initialize() {}
 
     public function onDisplay()
@@ -41,72 +41,47 @@ class Users extends Section implements Initializable
 
     public function isDeletable($model)
     {
+        
         return true;
     }
 
     public function onEdit($id)
     {
+        
         $pola = [
             \AdminFormElement::text('name', 'Nazwa')->required(),
-            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
-            \AdminFormElement::password('password', 'Hasło'),
+            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email')//->setReadonly(auth()->user()->role != 1)
+            ,
+
         ];
 
-        // Define permissions array
-        $permissionsMap = [
-            1 => ['value' => 'VPN', 'method' => 'isVPNclient'],
-            2 => ['value' => 'Task', 'method' => 'isTaskPermission'],
-            4 => ['value' => 'PC', 'method' => 'isPC'],
-            8 => ['value' => 'Email', 'method' => 'isEmailPermission'],
-            32 => ['value' => 'Admin', 'method' => 'isAdmin'],
-        ];
-
-        return \AdminForm::panel()->addBody($pola);
-
-}
-    public function onUpdate2($id, array $data)
-    {
-        dd($user->permission, $data['permission']);
-        $permissionsMap = [1, 2, 4, 8, 32];
-        $permissionsSum = 0;
-
-        // Calculate total permission value based on checkbox states
-        foreach ($permissionsMap as $value) {
-            if (isset($data["permission_$value"]) && $data["permission_$value"]) {
-                // If checkbox is checked, add this permission value to the sum
-                $permissionsSum += $value;
-            }
-            unset($data["permission_$value"]);
+        $pola[] = \AdminFormElement::password('password', 'Hasło');
+        
+        $permissions = User::find($id)->allPermissions();
+        
+        // Make sure permissions is always an array
+        if (!is_array($permissions)) {
+            $permissions = $permissions ? explode(',', $permissions) : [];
         }
+        
+        $pola[] = \AdminFormElement::multiselect('permission', 'Rola', [
+            User::PERMISSION_VPN_CLIENT => 'VPN',
+            User::PERMISSION_TASK => 'Task',
+            User::PERMISSION_PC => 'PC',
+            User::PERMISSION_EMAIL => 'Email',
+            User::PERMISSION_ADMIN => 'Admin',
+        ])->setDefaultValue($permissions);
+        
+        
 
-        // Pobierz model użytkownika
-        $user = User::findOrFail($id);
 
-        // Ustaw wartość pola 'permission'
-        $user->permission = $permissionsSum;
-        //sprawdz na ekranie wartosc usera i data
-        // Zapisz zmiany w modelu
-        $user->save();
 
-        return $user; // Zwróć zaktualizowany model
+        return  \AdminForm::panel()->addBody($pola);
     }
     
 
     public function onCreate(array $data)
     {
-        $permissionsSum = 0;
-        $permissionsMap = [1, 2, 4, 8, 32];
-        $user = new User();
-        
-        foreach ($permissionsMap as $value) {
-            if (isset($data["permission_$value"]) && $data["permission_$value"]) {
-                $user->addPermission($value);
-            }
-            unset($data["permission_$value"]);
-        }
-        
-        $data['permission'] = $user->permission;
-
-        return parent::onCreate($data);
+        return $this->onEdit(null);
     }
 }

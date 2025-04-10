@@ -50,8 +50,9 @@ class Users extends Section implements Initializable
         
         $pola = [
             \AdminFormElement::text('name', 'Nazwa')->required(),
-            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email')//->setReadonly(auth()->user()->role != 1)
-            ,
+            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
+            \AdminFormElement::text('class', 'Klasa'),
+            \AdminFormElement::checkbox('active', 'Aktywny'),
 
         ];
 

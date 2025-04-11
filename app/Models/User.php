@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return ($this->permission & $permission) == $permission;
+        return ($this->attributes["permission"] & $permission) == $permission;
     }
 
     public function isVPNclient()
@@ -110,5 +110,19 @@ class User extends Authenticatable
         foreach ($permissions as $permission) {
             $this->attributes['permission'] |= $permission;
         }
+    }
+    public function getPermissionAttribute()
+    {
+        $permissions = [];
+        $i=1;
+        while($i<255)
+        {
+            if(($this->attributes['permission'] & $i) == $i)
+            {
+                $permissions[] = $i;
+            }
+            $i<<= 1;
+        }
+        return $permissions;
     }
 }

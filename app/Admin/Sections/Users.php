@@ -21,16 +21,26 @@ class Users extends Section implements Initializable
                 \AdminColumn::text('id', '#')->setWidth('30px'),
                 \AdminColumn::link('name', 'Nazwa'),
                 \AdminColumn::text('email', 'Email'),
+    
                 \AdminColumn::custom('Role', function ($model) {
-                    $permissions = [];
+                    $permissionMap = [
+                        User::PERMISSION_VPN_CLIENT => 'VPN',
+                        User::PERMISSION_TASK => 'Task',
+                        User::PERMISSION_PC => 'PC',
+                        User::PERMISSION_EMAIL => 'Email',
+                        User::PERMISSION_ADMIN => 'Admin',
+                    ];
                     
-                    if ($model->isVPNclient()) $permissions[] = 'VPN';
-                    if ($model->isTaskPermission()) $permissions[] = 'Task';
-                    if ($model->isPC()) $permissions[] = 'PC';
-                    if ($model->isEmailPermission()) $permissions[] = 'Email';
-                    if ($model->isAdmin()) $permissions[] = 'Admin';
-
-                    return implode(', ', $permissions);
+                    $userPermissions = $model->allPermissions();
+                    $displayPermissions = [];
+                    
+                    foreach ($userPermissions as $permission) {
+                        if (isset($permissionMap[$permission])) {
+                            $displayPermissions[] = $permissionMap[$permission];
+                        }
+                    }
+                    
+                    return implode(', ', $displayPermissions);
                 }),
             ])
             ->setDisplaySearch(true)
@@ -76,13 +86,36 @@ class Users extends Section implements Initializable
         
 
 
-
         return  \AdminForm::panel()->addBody($pola);
     }
     
 
-    public function onCreate(array $data)
-    {
-        return $this->onEdit(null);
-    }
+    public function onCreate()
+{
+    $pola = [
+        \AdminFormElement::text('name', 'Nazwa')->required(),
+        \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
+        \AdminFormElement::text('class', 'Klasa'),
+        \AdminFormElement::checkbox('active', 'Aktywny')->setDefaultValue(true),
+        \AdminFormElement::password('password', 'Hasło')->required(),
+        
+        \AdminFormElement::multiselect('permission', 'Rola', [
+            User::PERMISSION_VPN_CLIENT => 'VPN',
+            User::PERMISSION_TASK => 'Task',
+            User::PERMISSION_PC => 'PC',
+            User::PERMISSION_EMAIL => 'Email',
+            User::PERMISSION_ADMIN => 'Admin',
+        ])
+    ];
+
+    return \AdminForm::panel()->addBody($pola);
+}
+
+public function onCreateAndEdit($id = null)
+{
+    $model = $id ? User::find($id) : null;
+    
+    return \AdminSection::getModelConfigValue(User::class, $id ? 'onEdit' : 'onCreate');
+}
+
 }

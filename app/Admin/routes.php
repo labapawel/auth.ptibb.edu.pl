@@ -23,5 +23,12 @@ Route::middleware('admin')->group(function () {
 		return AdminSection::view($content, 'PC');
 	}]);
 
+	// Logout route
+	Route::get('logout', ['as' => 'admin.logout', function () {
+		Auth::logout();
+		session()->invalidate();
+		session()->regenerateToken();
+		return redirect()->route('login');
+	}]);
 
 });

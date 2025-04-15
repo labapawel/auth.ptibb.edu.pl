@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http; // Added HTTP facade
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
@@ -41,21 +42,48 @@ class NewPasswordController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+            $user->forceFill([
+                'password' => Hash::make($request->password),
+                'remember_token' => Str::random(60),
+            ])->save();
 
-                event(new PasswordReset($user));
+            
+            //
+            // Send POST request to Samba service with username and password
+            try {
+                // Configure Samba service URL in .env file with SAMBA_SERVICE_URL
+                $sambaUrl = config('SAMBA_SERVICE_URL', 'http://localhost:3000/user/addToSamba');
+                
+                // // Debug data
+                // dd([
+                // 'samba_url' => $sambaUrl,
+                // 'request_data' => [
+                //     'username' => $user->email,
+                //     'password' => $request->password
+                // ]
+                // ]);
+                
+                Http::timeout(5)->post($sambaUrl, [
+                'username' => $user->email,
+                'password' => $request->password
+                ]);
+            } catch (\Exception $e) {
+                // Log any errors but continue with password reset flow
+                \Log::error('Failed to connect to Samba service: ' . $e->getMessage());
+            }
+            // Remove debug statement to allow normal execution flow
+            event(new PasswordReset($user));
             }
         );
 
         // If the password was successfully reset, we will redirect the user back to
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+        if ($status == Password::PASSWORD_RESET) {
+            return redirect()->route('login')->with('status', __($status));
+        }
+        
+        return back()->withInput($request->only('email'))
+                     ->withErrors(['email' => __($status)]);
     }
 }

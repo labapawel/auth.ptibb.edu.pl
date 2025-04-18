@@ -20,7 +20,17 @@ return [
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
         'scheme' => 'https',
     ],
-
+    'microsoft-graph' => [
+    'client_id' => env('MICROSOFT_CLIENT_ID'),
+    'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+    'redirect' => env('MICROSOFT_REDIRECT'),
+    'scopes' => [
+        'openid',
+        'profile',
+        'email',
+        'Mail.Send', 
+        ],
+],
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

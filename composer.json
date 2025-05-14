@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "adldap2/adldap2": "^10.5",
         "guzzlehttp/guzzle": "^7.2",
         "labapawel/admin": "dev-development",
         "laravel/framework": "^10.10",

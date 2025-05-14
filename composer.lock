@@ -4,8 +4,74 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1235775fbd45bd9dc74d312086ced725",
+    "content-hash": "c1d7e5fce8ff7881bf5a78388ded9dbe",
     "packages": [
+        {
+            "name": "adldap2/adldap2",
+            "version": "v10.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Adldap2/Adldap2.git",
+                "reference": "e400eecb7bd7de8ee79aae320b54ad70d37f86b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Adldap2/Adldap2/zipball/e400eecb7bd7de8ee79aae320b54ad70d37f86b1",
+                "reference": "e400eecb7bd7de8ee79aae320b54ad70d37f86b1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-ldap": "*",
+                "illuminate/contracts": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
+                "php": ">=7.0",
+                "psr/log": "^1.0|^2.0|^3.0",
+                "psr/simple-cache": "^1.0|^2.0|^3.0",
+                "tightenco/collect": "^5.0|^6.0|^7.0|^8.0|^9.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "symfony/phpunit-bridge": "^5.2|^6.0"
+            },
+            "suggest": {
+                "ext-fileinfo": "fileinfo is required when retrieving user encoded thumbnails"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Adldap\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Steve Bauman",
+                    "email": "steven_bauman@outlook.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP LDAP Package for humans.",
+            "keywords": [
+                "active directory",
+                "ad",
+                "adLDAP",
+                "adldap2",
+                "directory",
+                "ldap",
+                "windows"
+            ],
+            "support": {
+                "docs": "https://github.com/Adldap2/Adldap2/blob/master/readme.md",
+                "email": "steven_bauman@outlook.com",
+                "issues": "https://github.com/Adldap2/Adldap2/issues",
+                "source": "https://github.com/Adldap2/Adldap2"
+            },
+            "abandoned": true,
+            "time": "2023-02-23T15:00:03+00:00"
+        },
         {
             "name": "barryvdh/laravel-ide-helper",
             "version": "v3.1.0",
@@ -2004,6 +2070,97 @@
             "time": "2020-09-09T12:34:05+00:00"
         },
         {
+            "name": "labapawel/admin",
+            "version": "dev-development",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/labapawel/admin.git",
+                "reference": "306f3770b0ecb56601d1a1ea728226b6597b3a94"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/labapawel/admin/zipball/306f3770b0ecb56601d1a1ea728226b6597b3a94",
+                "reference": "306f3770b0ecb56601d1a1ea728226b6597b3a94",
+                "shasum": ""
+            },
+            "require": {
+                "barryvdh/laravel-ide-helper": ">=2.4",
+                "davejamesmiller/laravel-breadcrumbs": ">=4.0",
+                "doctrine/dbal": ">=2.3",
+                "erusev/parsedown": "1.*",
+                "ext-json": "*",
+                "kodicms/laravel-assets": "0.*",
+                "kodicomponents/navigation": "0.* || ~1.0",
+                "kodicomponents/support": "0.*",
+                "laravel/framework": ">=5.5",
+                "laravelcollective/html": ">=5.5",
+                "php": ">=7.1.3"
+            },
+            "require-dev": {
+                "mockery/mockery": ">=0.9",
+                "orchestra/testbench": ">=3.5",
+                "phpunit/phpunit": ">=7.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SleepingOwl\\Admin\\Providers\\SleepingOwlServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-development": "5.6.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SleepingOwl\\Admin\\": "src/",
+                    "SleepingOwl\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sleeping Owl",
+                    "email": "owl.sleeping@yahoo.com"
+                },
+                {
+                    "name": "Pavel Buchnev",
+                    "email": "butschster@gmail.com"
+                },
+                {
+                    "name": "Dave Gabrielyan",
+                    "email": "aioslike@gmail.com"
+                },
+                {
+                    "name": "TheArdent",
+                    "email": "oleksii.yaryi@gmail.com"
+                },
+                {
+                    "name": "Daan",
+                    "email": "daan@ukr.net"
+                }
+            ],
+            "description": "Administrative interface builder for Laravel.",
+            "homepage": "http://sleepingowladmin.ru",
+            "keywords": [
+                "admin",
+                "administrator",
+                "crud",
+                "laravel",
+                "panel"
+            ],
+            "support": {
+                "issues": "https://github.com/LaravelRUS/SleepingOwlAdmin/issues",
+                "source": "https://github.com/LaravelRUS/SleepingOwlAdmin"
+            },
+            "time": "2025-04-12T14:21:18+00:00"
+        },
+        {
             "name": "laravel/framework",
             "version": "v10.48.29",
             "source": {
@@ -2533,96 +2690,6 @@
             },
             "abandoned": "spatie/laravel-html",
             "time": "2023-04-25T02:46:11+00:00"
-        },
-        {
-            "name": "laravelrus/sleepingowl",
-            "version": "9.5.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/LaravelRUS/SleepingOwlAdmin.git",
-                "reference": "7fe32729ff6b1b564323e2ef522eb38e85833913"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/LaravelRUS/SleepingOwlAdmin/zipball/7fe32729ff6b1b564323e2ef522eb38e85833913",
-                "reference": "7fe32729ff6b1b564323e2ef522eb38e85833913",
-                "shasum": ""
-            },
-            "require": {
-                "barryvdh/laravel-ide-helper": ">=2.4",
-                "davejamesmiller/laravel-breadcrumbs": ">=4.0",
-                "doctrine/dbal": ">=2.3",
-                "erusev/parsedown": "1.*",
-                "ext-json": "*",
-                "kodicms/laravel-assets": "0.*",
-                "kodicomponents/navigation": "0.* || ~1.0",
-                "kodicomponents/support": "0.*",
-                "laravel/framework": ">=5.5",
-                "laravelcollective/html": ">=5.5",
-                "php": ">=7.1.3"
-            },
-            "require-dev": {
-                "mockery/mockery": ">=0.9",
-                "orchestra/testbench": ">=3.5",
-                "phpunit/phpunit": ">=7.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "SleepingOwl\\Admin\\Providers\\SleepingOwlServiceProvider"
-                    ]
-                },
-                "branch-alias": {
-                    "dev-development": "5.6.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "SleepingOwl\\Admin\\": "src/",
-                    "SleepingOwl\\Tests\\": "tests/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sleeping Owl",
-                    "email": "owl.sleeping@yahoo.com"
-                },
-                {
-                    "name": "Pavel Buchnev",
-                    "email": "butschster@gmail.com"
-                },
-                {
-                    "name": "Dave Gabrielyan",
-                    "email": "aioslike@gmail.com"
-                },
-                {
-                    "name": "TheArdent",
-                    "email": "oleksii.yaryi@gmail.com"
-                },
-                {
-                    "name": "Daan",
-                    "email": "daan@ukr.net"
-                }
-            ],
-            "description": "Administrative interface builder for Laravel.",
-            "homepage": "http://sleepingowladmin.ru",
-            "keywords": [
-                "admin",
-                "administrator",
-                "crud",
-                "laravel",
-                "panel"
-            ],
-            "support": {
-                "issues": "https://github.com/LaravelRUS/SleepingOwlAdmin/issues",
-                "source": "https://github.com/LaravelRUS/SleepingOwlAdmin"
-            },
-            "time": "2021-12-19T20:17:43+00:00"
         },
         {
             "name": "league/commonmark",
@@ -6647,6 +6714,61 @@
             "time": "2025-01-17T11:26:11+00:00"
         },
         {
+            "name": "tightenco/collect",
+            "version": "v9.52.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tighten/collect.git",
+                "reference": "b15143cd11fe01a700fcc449df61adc64452fa6d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tighten/collect/zipball/b15143cd11fe01a700fcc449df61adc64452fa6d",
+                "reference": "b15143cd11fe01a700fcc449df61adc64452fa6d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0",
+                "symfony/var-dumper": "^3.4 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "nesbot/carbon": "^2.23.0",
+                "phpunit/phpunit": "^8.3"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Collect/Support/helpers.php",
+                    "src/Collect/Support/alias.php"
+                ],
+                "psr-4": {
+                    "Tightenco\\Collect\\": "src/Collect"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                }
+            ],
+            "description": "Collect - Illuminate Collections as a separate package.",
+            "keywords": [
+                "collection",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/tighten/collect/issues",
+                "source": "https://github.com/tighten/collect/tree/v9.52.7"
+            },
+            "abandoned": "illuminate/collections",
+            "time": "2023-04-14T21:51:36+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.3.0",
             "source": {
@@ -9495,7 +9617,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "labapawel/admin": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

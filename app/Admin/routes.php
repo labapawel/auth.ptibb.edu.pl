@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LdapUsersController;
 
 // Group all admin routes with the admin middleware
 Route::middleware('admin')->group(function () {
@@ -11,11 +12,11 @@ Route::middleware('admin')->group(function () {
 	}]);
 
 
-	// VPN management route
-	Route::get('vpn', ['as' => 'admin.vpn', function () {
-		$content = 'VPN Management';
-		return AdminSection::view($content, 'VPN');
-	}]);
+Route::get('/ldap/users', function () {
+    $users = app(\App\Http\Controllers\Admin\LdapUsersController::class)->index()->getData();
+    // Render a Blade view styled like the dashboard/PC management
+    return AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
+});
 
 	// PC management route
 	Route::get('pc', ['as' => 'admin.pc', function () {
@@ -30,5 +31,4 @@ Route::middleware('admin')->group(function () {
 		session()->regenerateToken();
 		return redirect()->route('login');
 	}]);
-
 });

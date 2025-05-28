@@ -22,24 +22,16 @@ return [
     ],
 
     [
-        'title' => __('lang.admin.vpn'),
+        'title' => __('lang.admin.ldap'),
         'icon'  => 'fas fa-shield-alt',
-        'url'   => url('admin/vpn'),
+        'url'   => url('admin/ldap/users'),
         'priority' => 300
     ],
     
     [
-        'title' => __('lang.admin.pc'),
-        'icon'  => 'fas fa-desktop',
-        'url'   => url('admin/pc'),
-        'priority' => 400
+    'title' => 'Użytkownicy LDAP',
+    'icon'  => 'fas fa-users-cog',
+    'url'   => url('admin/ldap/users'),
+    'priority' => 350
     ],
-    
-    [
-        'title' => __('lang.admin.tasks'), 
-        'icon'  => 'fas fa-tasks',
-        'url'   => 'https://zadania.t24.ovh', 
-        'priority' => 500, 
-    ],
-
 ];

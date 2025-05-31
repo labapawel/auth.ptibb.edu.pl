@@ -1,36 +1,61 @@
-<div class="users-container p-6">
+@extends('admin.layouts.app')
+
+@section('title', 'Użytkownicy LDAP')
+
+@section('content')
+<div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Użytkownicy LDAP</h2>
+        <div class="space-x-2">
+            <a href="{{ route('admin.dashboard') }}" class="admin-btn-secondary">Powrót do panelu</a>
+            <a href="{{ route('admin.ldap.users.create') }}" class="admin-btn">Dodaj użytkownika</a>
+        </div>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+    
+    @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded" role="alert">
+            <p>{{ session('success') }}</p>
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
+            <p>{{ session('error') }}</p>
+        </div>
+    @endif
+    <div class="admin-card mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Szukaj</label>
-                <input type="text" id="search" name="search" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Imię, email...">
+                <label for="search" class="admin-form-label">Szukaj</label>
+                <input type="text" id="search" name="search" class="admin-form-input" placeholder="Imię, email...">
             </div>
         </div>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div class="admin-card overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="admin-table">
+                <thead class="admin-table-header">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CN</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Imię</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nazwisko</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Login (SAM)</th>
+                        <th class="admin-table-head">CN</th>
+                        <th class="admin-table-head">Imię</th>
+                        <th class="admin-table-head">Nazwisko</th>
+                        <th class="admin-table-head">Email</th>
+                        <th class="admin-table-head">Login (SAM)</th>
+                        <th class="admin-table-head">Akcje</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <?php if(isset($users) && is_iterable($users) && count($users)): ?>
                     <?php foreach($users as $user): ?>
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?php echo htmlspecialchars($user->cn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?php echo htmlspecialchars($user->givenname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?php echo htmlspecialchars($user->sn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?php echo htmlspecialchars($user->mail ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?php echo htmlspecialchars($user->samaccountname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->cn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->givenname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->sn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->mail ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->samaccountname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{{ route('admin.ldap.users.delete', $user->distinguishedname) }}" class="text-red-600 hover:text-red-900 mr-3">Usuń</a>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -47,10 +72,11 @@
                     Wyświetlanie <?php echo isset($users) ? count($users) : 0; ?> z <?php echo isset($users) ? count($users) : 0; ?> wyników
                 </div>
                 <div class="flex space-x-2">
-                    <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">Poprzednia</button>
-                    <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">Następna</button>
+                    <button class="admin-btn-secondary text-sm py-1 px-3">Poprzednia</button>
+                    <button class="admin-btn-secondary text-sm py-1 px-3">Następna</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection

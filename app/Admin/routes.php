@@ -10,7 +10,33 @@ Route::middleware('admin')->group(function () {
 		$content = __('lang.admin.dashboard');
 		return AdminSection::view($content, 'Dashboard');
 	}]);
+	// Trasy LDAP dla administratorów
+	Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+		
+		Route::get('/ldap/users', function () {
+			$users = app(\App\Http\Controllers\Admin\LdapUsersController::class)->index()->getData();
+			return AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
+		})->name('ldap.users.index');
 
+		Route::get('/ldap/users/create', function () {
+			return AdminSection::view(view('admin.ldap-users-create')->render(), 'Create LDAP User');
+		})->name('ldap.users.create');
+
+		Route::post('/ldap/users', function () {
+			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->store(request());
+			return redirect()->route('admin.ldap.users.index')->with('status', $response);
+		})->name('ldap.users.store');
+
+		Route::get('/ldap/users/{distinguishedName}/delete', function ($distinguishedName) {
+			$content = app(\App\Http\Controllers\Admin\LdapUsersController::class)->delete($distinguishedName);
+			return AdminSection::view($content, 'Delete LDAP User');
+		})->name('ldap.users.delete');
+
+		Route::delete('/ldap/users/{distinguishedName}', function ($distinguishedName) {
+			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->destroy($distinguishedName);
+			return redirect()->route('admin.ldap.users.index')->with('status', $response);
+		})->name('ldap.users.destroy');
+	});
 
 Route::get('/ldap/users', function () {
     $users = app(\App\Http\Controllers\Admin\LdapUsersController::class)->index()->getData();

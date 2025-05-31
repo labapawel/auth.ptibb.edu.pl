@@ -14,9 +14,28 @@ class User extends Model implements Authenticatable
      * The object classes of the LDAP model.
      */
     public static array $objectClasses = [
+        'top',
+        'person',
+        'organizationalPerson',
+        'user',
         'inetOrgPerson',
         'posixAccount',
         'shadowAccount',
+    ];
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'cn',
+        'givenName',
+        'sn',
+        'mail',
+        'samAccountName',
+        'userPrincipalName',
+        'displayName',
     ];
 
     // /**
@@ -78,5 +97,46 @@ class User extends Model implements Authenticatable
     public function getSamAccountName(): ?string
     {
         return $this->getFirstAttribute('samaccountname');
+    }
+    
+    /**
+     * The attributes that represents the user's distinguished name.
+     */
+    public function getDistinguishedName(): ?string
+    {
+        return $this->getFirstAttribute('distinguishedname');
+    }
+    
+    /**
+     * Create a new LDAP user.
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public static function createUser(array $attributes)
+    {
+        $user = new static();
+        
+        foreach ($attributes as $key => $value) {
+            $user->$key = $value;
+        }
+        
+        // Domyślne wymagane atrybuty
+        if (!isset($attributes['displayName'])) {
+            $user->displayName = $attributes['givenName'] . ' ' . $attributes['sn'];
+        }
+        
+        if (!isset($attributes['userPrincipalName']) && isset($attributes['samAccountName'])) {
+            $baseDn = config('ldap.connections.default.base_dn');
+            $domain = implode('.', array_map(function($part) {
+                return substr($part, 3); // Usuwa "dc=" z każdej części
+            }, explode(',', $baseDn)));
+            
+            $user->userPrincipalName = $attributes['samAccountName'] . '@' . $domain;
+        }
+        
+        $user->save();
+        
+        return $user;
     }
 }

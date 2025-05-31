@@ -6,7 +6,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "adldap2/adldap2": "^10.5",
         "directorytree/ldaprecord-laravel": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
         "labapawel/admin": "dev-development",
@@ -62,7 +61,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "tbachert/spi": true
         }
     },
     "minimum-stability": "stable",

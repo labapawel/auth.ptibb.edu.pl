@@ -20,14 +20,6 @@ return [
         'url'   => url('admin/users'),
         'priority' => 200
     ],
-
-    [
-        'title' => __('lang.admin.ldap'),
-        'icon'  => 'fas fa-shield-alt',
-        'url'   => url('admin/ldap/users'),
-        'priority' => 300
-    ],
-    
     [
     'title' => 'Użytkownicy LDAP',
     'icon'  => 'fas fa-users-cog',

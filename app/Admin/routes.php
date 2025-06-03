@@ -36,13 +36,17 @@ Route::middleware('admin')->group(function () {
 			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->destroy($distinguishedName);
 			return redirect()->route('admin.ldap.users.index')->with('status', $response);
 		})->name('ldap.users.destroy');
+		
+    	Route::get('ldap/groups/create', [\App\Http\Controllers\Admin\LdapUsersController::class, 'createGroup'])->name('ldap.groups.create');
+    	Route::post('ldap/groups', [\App\Http\Controllers\Admin\LdapUsersController::class, 'storeGroup'])->name('ldap.groups.store');
+    	Route::post('ldap/users/{userDn}/assign-group', [\App\Http\Controllers\Admin\LdapUsersController::class, 'assignToGroup'])->name('ldap.users.assignGroup');
 	});
 
-Route::get('/ldap/users', function () {
-    $users = app(\App\Http\Controllers\Admin\LdapUsersController::class)->index()->getData();
-    // Render a Blade view styled like the dashboard/PC management
-    return AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
-});
+	Route::get('/ldap/users', function () {
+		$users = app(\App\Http\Controllers\Admin\LdapUsersController::class)->index()->getData();
+		// Render a Blade view styled like the dashboard/PC management
+		return AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
+	});
 
 	// PC management route
 	Route::get('pc', ['as' => 'admin.pc', function () {

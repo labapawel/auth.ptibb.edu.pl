@@ -8,7 +8,9 @@
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Użytkownicy LDAP</h2>
         <div class="space-x-2">
             <a href="{{ route('admin.dashboard') }}" class="admin-btn-secondary">Powrót do panelu</a>
+            <a href="{{ route('admin.ldap.groups.create') }}" class="admin-btn">Dodaj grupę</a>
             <a href="{{ route('admin.ldap.users.create') }}" class="admin-btn">Dodaj użytkownika</a>
+
         </div>
     </div>
     

@@ -42,7 +42,7 @@
                         <th class="admin-table-head">Imię</th>
                         <th class="admin-table-head">Nazwisko</th>
                         <th class="admin-table-head">Email</th>
-                        <th class="admin-table-head">Login (SAM)</th>
+                        <th class="admin-table-head">Login (UID)</th>
                         <th class="admin-table-head">Akcje</th>
                     </tr>
                 </thead>
@@ -54,9 +54,10 @@
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->givenname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->sn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->mail ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->samaccountname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="admin-table-cell"><?php echo htmlspecialchars($user->uid ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a href="{{ route('admin.ldap.users.delete', $user->distinguishedname) }}" class="text-red-600 hover:text-red-900 mr-3">Usuń</a>
+                            <td>
+                        <a href="{{ route('admin.ldap.users.delete', $user->cn); }}" class="text-red-600 hover:text-red-900 mr-3">Usuń</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

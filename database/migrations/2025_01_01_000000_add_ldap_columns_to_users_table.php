@@ -14,12 +14,17 @@ return new class extends Migration
         Schema::create('ldap_users', function (Blueprint $table) {
             $table->id();
             $table->string('dn')->unique(); // Distinguished Name
+            $table->json('objectclass');
             $table->string('cn');
-            $table->string('givenname')->nullable();
-            $table->string('sn')->nullable();
-            $table->string('mail')->nullable();
-            $table->string('samaccountname')->nullable();
-            $table->string('password')->nullable();
+            $table->string('sn');
+            $table->string('givenname');
+            $table->string('uid')->unique();
+            $table->unsignedBigInteger('uidnumber');
+            $table->unsignedBigInteger('gidnumber');
+            $table->string('homedirectory');
+            $table->string('loginshell');
+            $table->string('mail');
+            $table->string('userpassword');
             $table->timestamps();
         });
 

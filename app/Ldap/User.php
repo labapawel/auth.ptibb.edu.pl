@@ -12,55 +12,41 @@ class User extends Model implements Authenticatable
 
     /**
      * The object classes of the LDAP model.
+     * These define the types of objects this model represents in LDAP,
+     * which in turn dictates what attributes can be stored.
      */
     public static array $objectClasses = [
         'top',
         'person',
         'organizationalPerson',
-        'user',
-        'inetOrgPerson',
-        'posixAccount',
-        'shadowAccount',
+        'inetOrgPerson', // Crucial for 'mail', 'displayName', and 'userPassword'
     ];
     
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array
+     * This defines which attributes can be set via an array (e.g., User::create($data)).
+     * Note: 'userPrincipalName' and 'samAccountName' are typically for Active Directory.
+     * If using OpenLDAP without custom schema, consider removing them from here.
      */
     protected $fillable = [
+            'objectClass',
         'cn',
-        'givenName',
         'sn',
+        'givenName',
+        'uid',
+        'uidNumber',
+        'gidNumber',
+        'homeDirectory',
+        'loginShell',
         'mail',
-        'samAccountName',
-        'userPrincipalName',
-        'displayName',
+        'userPassword',
     ];
 
-    // /**
-    //  * The attributes that should be cast to native types.
-    //  *
-    //  * @var array
-    //  */
-    // protected $casts = [
-    //     'uidNumber' => 'int',
-    //     'gidNumber' => 'int',
-    // ];
-
-    // /**
-    //  * The attributes that should be mutated to dates.
-    //  *
-    //  * @var array
-    //  */
-    // protected $dates = [
-    //     'createTimestamp',
-    //     'modifyTimestamp',
-    // ];
-
-
-        /**
-     * The attributes that represents the user's cn.
+    // Your get* methods are fine as is.
+    // They provide explicit accessors but you can also use $user->cn directly.
+    
+    /**
+     * The attributes that represents the user's common name.
      */
     public function getCn(): ?string
     {
@@ -76,7 +62,7 @@ class User extends Model implements Authenticatable
     }
 
     /**
-     * The attributes that represents the user's sn.
+     * The attributes that represents the user's surname.
      */
     public function getSn(): ?string
     {
@@ -84,7 +70,7 @@ class User extends Model implements Authenticatable
     }
 
     /**
-     * The attributes that represents the user's mail.
+     * The attributes that represents the user's mail address.
      */
     public function getMail(): ?string
     {
@@ -92,51 +78,64 @@ class User extends Model implements Authenticatable
     }
 
     /**
-     * The attributes that represents the user's samaccountname.
+     * The attributes that represents the user's uid (User ID).
+     * This is the primary identifier for OpenLDAP users.
      */
-    public function getSamAccountName(): ?string
+    public function getUid(): ?string
     {
-        return $this->getFirstAttribute('samaccountname');
+        return $this->getFirstAttribute('uid');
     }
     
     /**
-     * The attributes that represents the user's distinguished name.
+     * The attributes that represents the user's distinguished name (DN).
+     * This is the unique identifier for the entry in the LDAP directory.
      */
     public function getDistinguishedName(): ?string
     {
-        return $this->getFirstAttribute('distinguishedname');
+        return $this->getDn(); // LdapRecord's Model already has a getDn() method.
     }
     
     /**
-     * Create a new LDAP user.
+     * Create a new LDAP user with specified attributes.
      *
-     * @param array $attributes
-     * @return static
+     * @param array $attributes The attributes to set for the new user.
+     * @return static The created LdapUser instance.
      */
     public static function createUser(array $attributes)
     {
-        $user = new static();
+        // Use the model's constructor for mass assignment if $fillable is used,
+        // otherwise assign attributes one by one.
+        $user = new static(); 
         
+        // This loop works fine for direct assignment.
         foreach ($attributes as $key => $value) {
             $user->$key = $value;
         }
         
-        // Domyślne wymagane atrybuty
+        // Default required attributes if not provided in the input.
         if (!isset($attributes['displayName'])) {
-            $user->displayName = $attributes['givenName'] . ' ' . $attributes['sn'];
-        }
-        
-        if (!isset($attributes['userPrincipalName']) && isset($attributes['samAccountName'])) {
-            $baseDn = config('ldap.connections.default.base_dn');
-            $domain = implode('.', array_map(function($part) {
-                return substr($part, 3); // Usuwa "dc=" z każdej części
-            }, explode(',', $baseDn)));
-            
-            $user->userPrincipalName = $attributes['samAccountName'] . '@' . $domain;
+            $user->displayName = ($attributes['givenName'] ?? '') . ' ' . ($attributes['sn'] ?? '');
         }
         
         $user->save();
         
         return $user;
+    }
+    
+    public function getUidNumber(): ?string
+    {
+        return $this->getFirstAttribute('uidNumber');
+    }
+    public function getGidNumber(): ?string
+    {
+        return $this->getFirstAttribute('gidNumber');
+    }
+    public function getHomeDirectory(): ?string
+    {
+        return $this->getFirstAttribute('homeDirectory');
+    }
+    public function getLoginShell(): ?string
+    {
+        return $this->getFirstAttribute('loginShell');
     }
 }

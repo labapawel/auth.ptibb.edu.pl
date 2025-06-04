@@ -6,183 +6,200 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Ldap\User as LdapUser;
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Models\OpenLDAP\Group;
+
 class LdapUsersController extends Controller
 {
+    /**
+     * Helper method to get the proper DN for LDAP entities
+     * 
+     * @param string $type Type of entity (users, groups)
+     * @param string $identifier Unique identifier (uid for users, cn for groups)
+     * @param string $value Value of the identifier
+     * @return string Full DN for the entity
+     */
+    private function getEntityDn(string $type, string $identifier, string $value): string
+    {
+        $baseDn = config("ldap.connections.default.base_dn");
+        
+        // Check if the base has organizational units for users and groups
+        // If not, use the base DN directly
+        try {
+            if (in_array($type, ["users", "groups"])) {
+                return $identifier . "=" . $value . ",ou=" . $type . "," . $baseDn;
+            }
+        } catch (\Exception $e) {
+            Log::warning("Error determining DN structure: " . $e->getMessage());
+        }
+        
+        // Fallback - use directly in the base DN
+        return $identifier . "=" . $value . "," . $baseDn;
+    }
+
     public function index()
     {
         try {
             $users = LdapUser::all()->map(function ($user) {
                 return [
-                    'cn' => $user->getCn(),
-                    'givenname' => $user->getGivenName(),
-                    'sn' => $user->getSn(),
-                    'mail' => $user->getMail(),
-                    'samaccountname' => $user->getSamAccountName(),
+                    "cn" => $user->getFirstAttribute("cn"),
+                    "givenname" => $user->getFirstAttribute("givenname"),
+                    "sn" => $user->getFirstAttribute("sn"),
+                    "mail" => $user->getFirstAttribute("mail"),
+                    "uid" => $user->getFirstAttribute("uid"),
                 ];
             });
             return response()->json($users);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Nie można połączyć się z serwerem LDAP: ' . $e->getMessage()], 500);
+            return response()->json(["error" => "Nie można połączyć się z serwerem LDAP: " . $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Wyświetla formularz dodawania użytkownika LDAP.
-     */
     public function create()
     {
-        return view('admin.ldap-users-create');
+        return view("admin.ldap-users-create");
     }
 
-    /**
-     * Zapisuje nowego użytkownika LDAP.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'cn' => 'required|string',
-            'givenName' => 'required|string',
-            'sn' => 'required|string',
-            'mail' => 'required|email',
-            'samAccountName' => 'required|string',
-            'password' => 'required|string|min:8',
+            "cn" => "required|string",
+            "sn" => "required|string",
+            "givenname" => "required|string",
+            "uid" => "required|string",
+            "uidnumber" => "required|numeric",
+            "gidnumber" => "required|numeric",
+            "homedirectory" => "required|string",
+            "loginshell" => "required|string",
+            "mail" => "required|email",
+            "userpassword" => "required|string|min:8",
         ]);
 
         try {
-
-            // Utwórz użytkownika
             $user = new LdapUser;
 
-            $user -> cn = $request->cn;
-            $user -> givenName = $request->givenName;
-            $user -> sn = $request->sn;
-            $user -> mail = $request->mail;
-            $user -> samAccountName = $request->samAccountName;
-            $user -> userPassword = $request->password;
-            $user -> displayName = $request->givenName . ' ' . $request->sn;
+            $user->objectClass = ['top','person','organizationalPerson','inetOrgPerson','posixAccount'];
+            $user->cn = $request->cn;
+            $user->sn = $request->sn;
+            $user->givenName = $request->givenname;
+            $user->uid = $request->uid;
+            $user->uidNumber = $request->uidnumber;
+            $user->gidNumber = $request->gidnumber;
+            $user->homeDirectory = 'uczniowie/' . $request->uid;
+            $user->loginShell = '/bin/bash';
+            $user->mail = $request->mail;
+            $user->userPassword = $request->userpassword;
+            $user->displayname = $request->givenname . " " . $request->sn;
 
-            $user ->save();
-            // Przypisz użytkownika do grupy, jeśli podano
-            if ($request->filled('group_cn')) {
-                $group = (new \LdapRecord\Models\OpenLDAP\Group())->where('cn', '=', $request->group_cn)->first();
+            \Log::info($user);
+            // Utwórz pełny DN dla użytkownika używając metody pomocniczej
+            $userDn = $this->getEntityDn("users", "uid", $request->uid);
+            $user->setDn($userDn);
+        
+            $user->save();
+            if ($request->filled("group_cn")) {
+                $group = (new Group())->where("cn", "=", $request->group_cn)->first();
                 if ($group) {
                     $group->addMember($user);
                 }
             }
 
-            return redirect()->route('admin.ldap.users.index')
-                ->with('success', 'Użytkownik LDAP został pomyślnie utworzony.');
+            return redirect()->route("admin.ldap.users.index")
+                ->with("success", "Użytkownik LDAP został pomyślnie utworzony.");
         } catch (\Exception $e) {
-            Log::error('Błąd podczas tworzenia użytkownika LDAP: ' . $e->getMessage());
+            Log::error("Błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Wystąpił błąd podczas tworzenia użytkownika LDAP: ' . $e->getMessage());
+                ->with("error", "Wystąpił błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage());
         }
     }
 
-    /**
-     * Wyświetla formularz usuwania użytkownika LDAP.
-     */
     public function delete($distinguishedName)
     {
         try {
-            // Znajdź użytkownika po jego Distinguished Name
+            
             $user = LdapUser::findByDn($distinguishedName);
-            
+
             if (!$user) {
-                return redirect()->route('admin.ldap.users.index')
-                    ->with('error', 'Użytkownik LDAP nie został znaleziony.');
+                return redirect()->route("admin.ldap.users.index")
+                    ->with("error", "Użytkownik LDAP nie został znaleziony.");
             }
-            
-            return view('admin.ldap-users-delete', compact('user'));
+
+            return view("admin.ldap-users-delete", compact("user"));
         } catch (\Exception $e) {
-            Log::error('Błąd podczas pobierania użytkownika LDAP: ' . $e->getMessage());
-            return redirect()->route('admin.ldap.users.index')
-                ->with('error', 'Wystąpił błąd podczas pobierania użytkownika LDAP: ' . $e->getMessage());
+            Log::error("Błąd podczas pobierania użytkownika LDAP: " . $e->getMessage());
+            return redirect()->route("admin.ldap.users.index")
+                ->with("error", "Wystąpił błąd podczas pobierania użytkownika LDAP: " . $e->getMessage());
         }
     }
 
-    /**
-     * Usuwa użytkownika LDAP.
-     */
     public function destroy($distinguishedName)
     {
         try {
-            // Znajdź użytkownika po jego Distinguished Name
             $user = LdapUser::findByDn($distinguishedName);
-            
+
             if (!$user) {
-                return redirect()->route('admin.ldap.users.index')
-                    ->with('error', 'Użytkownik LDAP nie został znaleziony.');
+                return redirect()->route("admin.ldap.users.index")
+                    ->with("error", "Użytkownik LDAP nie został znaleziony.");
             }
-            
-            // Zapisz dane użytkownika do wyświetlenia w komunikacie
-            $userName = $user->cn;
-            
-            // Usuń użytkownika
+
+            $userName = $user->getFirstAttribute("cn");
             $user->delete();
-            
-            return redirect()->route('admin.ldap.users.index')
-                ->with('success', "Użytkownik LDAP '{$userName}' został pomyślnie usunięty.");
+
+            return redirect()->route("admin.ldap.users.index")
+            ->with("success", "Użytkownik LDAP \"" . $userName . "\" został pomyślnie usunięty.");
         } catch (\Exception $e) {
-            Log::error('Błąd podczas usuwania użytkownika LDAP: ' . $e->getMessage());
-            return redirect()->route('admin.ldap.users.index')
-                ->with('error', 'Wystąpił błąd podczas usuwania użytkownika LDAP: ' . $e->getMessage());
+            Log::error("Błąd podczas usuwania użytkownika LDAP: " . $e->getMessage());
+            return redirect()->route("admin.ldap.users.index")
+                ->with("error", "Wystąpił błąd podczas usuwania użytkownika LDAP: " . $e->getMessage());
         }
     }
 
-    /**
-     * Wyświetla formularz tworzenia grupy (klasy).
-     */
     public function createGroup()
     {
-        return view('admin.ldap-group-create');
+        return view("admin.ldap-group-create");
     }
 
-    /**
-     * Zapisuje nową grupę (klasę) w LDAP.
-     */
     public function storeGroup(Request $request)
     {
         $request->validate([
-            'group_cn' => 'required|string|unique:ldap_groups,cn',
+            "group_cn" => "required|string",
         ]);
         try {
-            $group = new \LdapRecord\Models\OpenLDAP\Group();
-            $group->setDn('cn=' . $request->group_cn . ',ou=groups,dc=example,dc=com'); // Zmień na odpowiednią DN
+            $group = new Group();
+            
+            // Utwórz pełny DN dla grupy używając metody pomocniczej
+            $groupDn = $this->getEntityDn("groups", "cn", $request->group_cn);
+            $group->setDn($groupDn);
             $group->cn = $request->group_cn;
-            $group->description = $request->input('description', '');
+            $group->description = $request->input("description", "");
             $group->save();
-            return redirect()->route('admin.ldap.groups.index')
-                ->with('success', 'Grupa została utworzona.');
+            return redirect()->route("admin.ldap.groups.index")
+                ->with("success", "Grupa została utworzona.");
         } catch (\Exception $e) {
-            Log::error('Błąd podczas tworzenia grupy LDAP: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'Wystąpił błąd podczas tworzenia grupy: ' . $e->getMessage());
+            Log::error("Błąd podczas tworzenia grupy LDAP: " . $e->getMessage());
+            return redirect()->back()->withInput()->with("error", "Wystąpił błąd podczas tworzenia grupy: " . $e->getMessage());
         }
     }
 
-    /**
-     * Przypisuje użytkownika do grupy (klasy).
-     */
     public function assignToGroup(Request $request, $userDn)
     {
         $request->validate([
-            'group_cn' => 'required|string',
+            "group_cn" => "required|string",
         ]);
         try {
             $user = LdapUser::findByDn($userDn);
             if (!$user) {
-                return redirect()->back()->with('error', 'Nie znaleziono użytkownika LDAP.');
+                return redirect()->back()->with("error", "Nie znaleziono użytkownika LDAP.");
             }
-            $group = (new \LdapRecord\Models\OpenLDAP\Group())->where('cn', '=', $request->group_cn)->first();
+            $group = (new Group())->where("cn", "=", $request->group_cn)->first();
             if (!$group) {
-                return redirect()->back()->with('error', 'Nie znaleziono grupy LDAP.');
+                return redirect()->back()->with("error", "Nie znaleziono grupy LDAP.");
             }
             $group->addMember($user);
-            return redirect()->back()->with('success', 'Użytkownik został przypisany do grupy.');
+            return redirect()->back()->with("success", "Użytkownik został przypisany do grupy.");
         } catch (\Exception $e) {
-            Log::error('Błąd podczas przypisywania do grupy: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Wystąpił błąd podczas przypisywania do grupy: ' . $e->getMessage());
+            Log::error("Błąd podczas przypisywania do grupy: " . $e->getMessage());
+            return redirect()->back()->with("error", "Wystąpił błąd podczas przypisywania do grupy: " . $e->getMessage());
         }
     }
 }

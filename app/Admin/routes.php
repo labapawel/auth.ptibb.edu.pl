@@ -22,21 +22,14 @@ Route::middleware('admin')->group(function () {
 			return AdminSection::view(view('admin.ldap-users-create')->render(), 'Create LDAP User');
 		})->name('ldap.users.create');
 
-		Route::post('ldap/users', function () {
-			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->store(request());
-			return redirect()->route('ldap.users.index')->with('status', $response);
-		})->name('ldap.users.store');
-
-		Route::get('ldap/users/{distinguishedName}/delete', function ($distinguishedName) {
-			$content = app(\App\Http\Controllers\Admin\LdapUsersController::class)->delete($distinguishedName);
-			return AdminSection::view($content, 'Delete LDAP User');
-		})->name('ldap.users.delete');
+		Route::post('ldap/users', [\App\Http\Controllers\Admin\LdapUsersController::class, 'store'])->name('ldap.users.store');
 
 		Route::delete('ldap/users/{distinguishedName}', function ($distinguishedName) {
-			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->destroy($distinguishedName);
-			return redirect()->route('admin.ldap.users.index')->with('status', $response);
-		})->name('ldap.users.destroy');
+			$response = app(\App\Http\Controllers\Admin\LdapUsersController::class)->delete($distinguishedName);
+			return redirect('admin/ldap/users')->with('status', $response);
+		})->name('ldap.users.delete');
 
+		
 		Route::get('ldap/groups/create', [\App\Http\Controllers\Admin\LdapUsersController::class, 'createGroup'])->name('ldap.groups.create');
 		Route::post('ldap/groups', [\App\Http\Controllers\Admin\LdapUsersController::class, 'storeGroup'])->name('ldap.groups.store');
 		Route::post('ldap/users/{userDn}/assign-group', [\App\Http\Controllers\Admin\LdapUsersController::class, 'assignToGroup'])->name('ldap.users.assignGroup');

@@ -9,12 +9,33 @@
         <a href="/admin/ldap/users" class="admin-btn-secondary">Powrót</a>
     </div>
     
-    @if(session('error'))
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
-            <p>{{ session('error') }}</p>
+    @if(
+        session('error') || session('success') || $errors->any()
+    )
+        <div class="mb-6">
+            @if(session('error'))
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-2 rounded" role="alert">
+                    <p>{{ session('error') }}</p>
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-2 rounded" role="alert">
+                    <p>{{ session('success') }}</p>
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-2 rounded" role="alert">
+                    <ul class="list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
-    @endif    <div class="admin-card">
-        <form action="/admin/ldap/users/"method="POST">
+    @endif
+    <div class="admin-card">
+        <form action="/admin/ldap/users"method="POST">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -50,20 +71,6 @@
                     <label for="uid" class="admin-form-label">Login (UID)</label>
                     <input type="text" id="uid" name="uid" value="{{ old('uid') }}" class="admin-form-input" required>
                     @error('uid')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label for="uidnumber" class="admin-form-label">UID Number</label>
-                    <input type="number" id="uidnumber" name="uidnumber" value="{{ old('uidnumber') }}" class="admin-form-input" required>
-                    @error('uidnumber')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label for="gidnumber" class="admin-form-label">GID Number</label>
-                    <input type="number" id="gidnumber" name="gidnumber" value="{{ old('gidnumber') }}" class="admin-form-input" required>
-                    @error('gidnumber')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

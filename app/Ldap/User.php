@@ -19,7 +19,8 @@ class User extends Model implements Authenticatable
         'top',
         'person',
         'organizationalPerson',
-        'inetOrgPerson', // Crucial for 'mail', 'displayName', and 'userPassword'
+        'inetOrgPerson',
+        'posixAccount',
     ];
     
     /**
@@ -40,6 +41,7 @@ class User extends Model implements Authenticatable
         'loginShell',
         'mail',
         'userPassword',
+        
     ];
 
     // Your get* methods are fine as is.

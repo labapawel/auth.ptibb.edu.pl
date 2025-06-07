@@ -57,7 +57,11 @@
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->uid ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <td>
-                        <a href="{{ route('admin.ldap.users.delete', $user->cn); }}" class="text-red-600 hover:text-red-900 mr-3">Usuń</a>
+                        <form action="{{ route('admin.ldap.users.delete', $user->cn) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-900 mr-3" onclick="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">Usuń</button>
+                        </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>

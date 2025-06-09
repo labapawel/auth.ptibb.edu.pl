@@ -8,8 +8,7 @@
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Użytkownicy LDAP</h2>
         <div class="space-x-2">
             <a href="{{ route('admin.dashboard') }}" class="admin-btn-secondary">Powrót do panelu</a>
-            <a href="{{ route('admin.ldap.groups.create') }}" class="admin-btn">Dodaj grupę</a>
-            <a href="{{ route('admin.ldap.users.create') }}" class="admin-btn">Dodaj użytkownika</a>
+            <a href="{{ route('ldap.users.create') }}" class="admin-btn">Dodaj użytkownika</a>
 
         </div>
     </div>
@@ -46,22 +45,21 @@
                         <th class="admin-table-head">Akcje</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody id="user-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <?php if(isset($users) && is_iterable($users) && count($users)): ?>
                     <?php foreach($users as $user): ?>
-                    <tr>
+                    <tr class="user-row">
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->cn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->givenname ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->sn ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->mail ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->uid ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <td>
-                        <form action="{{ route('admin.ldap.users.delete', $user->cn) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900 mr-3" onclick="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">Usuń</button>
-                        </form>
+                            <form action="{{ route('ldap.users.delete', $user->cn) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 mr-3" onclick="return confirm('Czy na pewno chcesz usunąć tego użytkownika?');">Usuń</button>
+                            </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -86,4 +84,13 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('search').addEventListener('input', function (e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('#user-table .user-row').forEach(function (row) {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(query) ? '' : 'none';
+        });
+    });
+</script>
 @endsection

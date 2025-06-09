@@ -81,6 +81,21 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+                <div>
+                    <label for="organizational_unit" class="admin-form-label">Jednostka organizacyjna</label>
+                    @if($organizationalUnits === [])
+                        <p class="text-sm text-gray-500">Brak dostępnych jednostek organizacyjnych.</p>
+                    @else
+                        @foreach($organizationalUnits as $unit)
+                            <div>
+                                <input type="checkbox" id="organizational_unit_{{ $unit->ou }}" name="organizational_unit[]" value="{{ $unit->ou }}" {{ (is_array(old('organizational_unit')) && in_array($unit->ou, old('organizational_unit'))) ? 'checked' : '' }}>
+                                <label for="organizational_unit_{{ $unit->ou }}" class="ml-2 admin-form-label">
+                                    {{ $unit->getOu() }}
+                                </label>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
                 <!-- Ukryte pola, ustawiane automatycznie w kontrolerze -->
                 <input type="hidden" id="homedirectory" name="homedirectory" value="">
                 <input type="hidden" id="loginshell" name="loginshell" value="">

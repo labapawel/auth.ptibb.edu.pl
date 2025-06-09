@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Ldap\User as LdapUser;
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Models\OpenLDAP\Group;
+use App\Ldap\Group as Group;
 
 class LdapUsersController extends Controller
 {
@@ -29,7 +29,7 @@ class LdapUsersController extends Controller
         return $next;
     }
 
-    public function index()
+      public function getUsers()
     {
         try {
             $users = LdapUser::all()->map(function ($user) {
@@ -46,7 +46,6 @@ class LdapUsersController extends Controller
             return response()->json(["error" => "Nie można połączyć się z serwerem LDAP: " . $e->getMessage()], 500);
         }
     }
-
     public function create()
     {
         return view("admin.ldap-users-create");
@@ -79,18 +78,11 @@ class LdapUsersController extends Controller
                 'homedirectory'=> '/home/uczniowie/' . $request->uid,
                 'loginshell'   => '/bin/bash',
             ]);
-            dd($user);
 
             Log::info('Próba zapisu użytkownika do LDAP', ['attributes' => $user->getAttributes()]);
             $user->save();
-            if ($request->filled("group_cn")) {
-                $group = (new Group())->where("cn", "=", $request->group_cn)->first();
-                if ($group) {
-                    $group->addMember($user);
-                }
-            }
 
-            return redirect()->route("admin.ldap.users.index")
+            return redirect("admin/ldap/users")
                 ->with("success", "Użytkownik LDAP został pomyślnie utworzony.");
         } catch (\Exception $e) {
             Log::error("Błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage(), [
@@ -110,6 +102,7 @@ class LdapUsersController extends Controller
                 $cn = str_replace('%20', ' ', $cn);
             }
             $user = LdapUser::destroy('cn='.$cn.",dc=ptibb,dc=edu,dc=pl");
+
             
         } catch (\Exception $e) {
             Log::error("Błąd podczas pobierania użytkownika LDAP: " . $e->getMessage(), [
@@ -119,55 +112,6 @@ class LdapUsersController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with("error", "Wystąpił błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage());
-        }
-    }
-
-    public function createGroup()
-    {
-        return view("admin.ldap-group-create");
-    }
-
-    // public function storeGroup(Request $request)
-    // {
-    //     $request->validate([
-    //         "group_cn" => "required|string",
-    //     ]);
-    //     try {
-    //         $group = new Group();
-            
-    //         // Utwórz pełny DN dla grupy używając metody pomocniczej
-    //         $groupDn = $this->getEntityDn("groups", "cn", $request->group_cn);
-    //         $group->setDn($groupDn);
-    //         $group->cn = $request->group_cn;
-    //         $group->description = $request->input("description", "");
-    //         $group->save();
-    //         return redirect()->route("admin.ldap.groups.index")
-    //             ->with("success", "Grupa została utworzona.");
-    //     } catch (\Exception $e) {
-    //         Log::error("Błąd podczas tworzenia grupy LDAP: " . $e->getMessage());
-    //         return redirect()->back()->withInput()->with("error", "Wystąpił błąd podczas tworzenia grupy: " . $e->getMessage());
-    //     }
-    // }
-
-    public function assignToGroup(Request $request, $userDn)
-    {
-        $request->validate([
-            "group_cn" => "required|string",
-        ]);
-        try {
-            $user = LdapUser::findByDn($userDn);
-            if (!$user) {
-                return redirect()->back()->with("error", "Nie znaleziono użytkownika LDAP.");
-            }
-            $group = (new Group())->where("cn", "=", $request->group_cn)->first();
-            if (!$group) {
-                return redirect()->back()->with("error", "Nie znaleziono grupy LDAP.");
-            }
-            $group->addMember($user);
-            return redirect()->back()->with("success", "Użytkownik został przypisany do grupy.");
-        } catch (\Exception $e) {
-            Log::error("Błąd podczas przypisywania do grupy: " . $e->getMessage());
-            return redirect()->back()->with("error", "Wystąpił błąd podczas przypisywania do grupy: " . $e->getMessage());
         }
     }
 }

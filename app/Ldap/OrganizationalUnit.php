@@ -4,27 +4,33 @@ namespace App\Ldap;
 
 use LdapRecord\Models\Model;
 
-
-class Group extends Model 
+class OrganizationalUnit extends Model
 {
     /**
-     * The object classes of the LDAP group model.
+     * The object classes of the LDAP organizational unit model.
      */
     public static array $objectClasses = [
         'top',
-        'groupOfNames',
+        'organizationalUnit',
+    ];
+    protected $fillable = [
+        'cn',
+        'ou',
+        'description',
+        'member',
+        'dn'
     ];
 
     /**
-     * Pobierz CN grupy.
+     * Pobierz nazwę jednostki organizacyjnej (OU).
      */
-    public function getCn(): ?string
+    public function getOu(): ?string
     {
-        return $this->getFirstAttribute('cn');
+        return $this->getFirstAttribute('ou');
     }
 
     /**
-     * Pobierz opis grupy.
+     * Pobierz opis jednostki organizacyjnej.
      */
     public function getDescription(): ?string
     {
@@ -32,7 +38,7 @@ class Group extends Model
     }
 
     /**
-     * Pobierz członków grupy (tablica DN).
+     * Pobierz członków jednostki organizacyjnej (tablica DN).
      */
     public function getMembers(): array
     {
@@ -40,7 +46,7 @@ class Group extends Model
     }
 
     /**
-     * Dodaj użytkownika do grupy.
+     * Dodaj użytkownika do jednostki organizacyjnej.
      */
     public function addMember($user)
     {
@@ -56,7 +62,7 @@ class Group extends Model
     }
 
     /**
-     * Usuń użytkownika z grupy.
+     * Usuń użytkownika z jednostki organizacyjnej.
      */
     public function removeMember($user)
     {

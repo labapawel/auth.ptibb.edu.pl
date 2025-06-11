@@ -1,10 +1,10 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dodaj grupę (klasę) LDAP')
+@section('title', 'Dodaj jednostkę organizacyjną LDAP')
 
 @section('content')
 <div class="admin-container max-w-lg mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-6">Dodaj nową grupę (klasę)</h2>
+    <h2 class="text-2xl font-bold mb-6">Dodaj nową jednostkę organizacyjną</h2>
     @if(session('error'))
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
             <p>{{ session('error') }}</p>
@@ -35,15 +35,57 @@
                 @endforeach
             </div>
         </div>
-        <button type="submit" class="admin-btn">Utwórz grupę</button>
+        <button type="submit" class="admin-btn">Utwórz jednostkę organizacyjną</button>
     </form>
 </div>
 <script>
-    document.getElementById('user-search').addEventListener('input', function (e) {
-        const query = e.target.value.toLowerCase();
-        document.querySelectorAll('#user-list .user-item').forEach(function (item) {
-            const userName = item.textContent.toLowerCase();
-            item.style.display = userName.includes(query) ? '' : 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('user-search');
+        const userItems = document.querySelectorAll('#user-list .user-item');
+        
+        // Function to filter users
+        function filterUsers(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            let visibleCount = 0;
+            
+            userItems.forEach(function(item) {
+                const userName = item.textContent.toLowerCase();
+                const isVisible = lowerQuery === '' || userName.includes(lowerQuery);
+                item.style.display = isVisible ? 'flex' : 'none';
+                if (isVisible) visibleCount++;
+            });
+            
+            // Show/hide "no results" message
+            updateNoResultsMessage(visibleCount === 0 && lowerQuery !== '');
+        }
+        
+        // Function to show/hide no results message
+        function updateNoResultsMessage(show) {
+            let noResultsMsg = document.getElementById('no-results-message');
+            
+            if (show && !noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.id = 'no-results-message';
+                noResultsMsg.className = 'text-center text-gray-500 py-4';
+                noResultsMsg.textContent = 'Nie znaleziono użytkowników';
+                document.getElementById('user-list').appendChild(noResultsMsg);
+            } else if (!show && noResultsMsg) {
+                noResultsMsg.remove();
+            }
+        }
+        
+        // Search input event listener
+        searchInput.addEventListener('input', function(e) {
+            filterUsers(e.target.value);
+        });
+        
+        // Clear search when escape is pressed
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                e.target.value = '';
+                filterUsers('');
+                e.target.blur();
+            }
         });
     });
 </script>

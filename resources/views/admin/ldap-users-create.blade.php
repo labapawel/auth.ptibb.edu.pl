@@ -87,10 +87,10 @@
                         <p class="text-sm text-gray-500">Brak dostępnych jednostek organizacyjnych.</p>
                     @else
                         @foreach($organizationalUnits as $unit)
-                            <div>
+                            <div class="flex items-center mb-2">
                                 <input type="checkbox" id="organizational_unit_{{ $unit->ou }}" name="organizational_unit[]" value="{{ $unit->ou }}" {{ (is_array(old('organizational_unit')) && in_array($unit->ou, old('organizational_unit'))) ? 'checked' : '' }}>
                                 <label for="organizational_unit_{{ $unit->ou }}" class="ml-2 admin-form-label">
-                                    {{ $unit->getOu() }}
+                                    {{ $unit->ou }}
                                 </label>
                             </div>
                         @endforeach

@@ -2,7 +2,7 @@
 
 namespace App\Ldap;
 
-use LdapRecord\Models\Model;
+use LdapRecord\Models\OpenLDAP\OrganizationalUnit as Model;
 
 class OrganizationalUnit extends Model
 {
@@ -14,32 +14,10 @@ class OrganizationalUnit extends Model
         'organizationalUnit',
     ];
     protected $fillable = [
-        'cn',
         'ou',
         'description',
-        'member',
-        'dn'
     ];
 
-    /**
-     * Pobierz nazwę jednostki organizacyjnej (OU).
-     */
-    public function getOu(): ?string
-    {
-        return $this->getFirstAttribute('ou');
-    }
-
-    /**
-     * Pobierz opis jednostki organizacyjnej.
-     */
-    public function getDescription(): ?string
-    {
-        return $this->getFirstAttribute('description');
-    }
-
-    /**
-     * Pobierz członków jednostki organizacyjnej (tablica DN).
-     */
     public function getMembers(): array
     {
         return $this->getAttribute('member') ?? [];

@@ -83,7 +83,7 @@ class LdapUsersController extends Controller
             $user->save();
 
             return redirect("admin/ldap/users")
-                ->with("success", "Użytkownik LDAP został pomyślnie utworzony.");
+                ->with("success", "Użytkownik " . $request->cn ." został pomyślnie utworzony.");
         } catch (\Exception $e) {
             Log::error("Błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
@@ -95,23 +95,63 @@ class LdapUsersController extends Controller
         }
     }
 
-    public function delete($cn)
+    public function edit($uid)
     {
-        try {
-            if (strpos($cn, '%20') !== false) {
-                $cn = str_replace('%20', ' ', $cn);
-            }
-            $user = LdapUser::destroy('cn='.$cn.",dc=ptibb,dc=edu,dc=pl");
+        $user = LdapUser::where('uid', '=', $uid)->first();
+        if (!$user) {
+            return redirect()->route('ldap.users.index')->with('error', 'Użytkownik nie został znaleziony.');
+        }
 
+        $organizationalUnits = app(\App\Http\Controllers\Admin\LdapOuController::class)->getOrganizationalUnits()->getData();
+        
+        return view('admin.ldap-users-edit', compact('user', 'organizationalUnits'));
+    }
+
+    public function update(Request $request, $uid)
+    {
+        $user = LdapUser::where('uid', '=', $uid)->first();
+        if (!$user) {
+            return redirect()->route('ldap.users.index')->with('error', 'Użytkownik nie został znaleziony.');
+        }
+
+        $request->validate([
+            'cn' => 'required|string',
+            'sn' => 'required|string',
+            'givenname' => 'required|string',
+            'mail' => 'required|email',
+            'organizational_units' => 'nullable|array',
+        ]);
+
+        try {
+            $user->cn = $request->cn;
+            $user->sn = $request->sn;
+            $user->givenname = $request->givenname;
+            $user->mail = $request->mail;
+            $user->displayname = $request->givenname . ' ' . $request->sn;
             
+            Log::info('Próba aktualizacji użytkownika LDAP', ['attributes' => $user->getAttributes()]);
+            $user->save();
+
+            // Handle organizational unit assignments
+            if ($request->filled('organizational_units')) {
+                foreach ($request->organizational_units as $ouName) {
+                    $ou = \App\Ldap\OrganizationalUnit::where('ou', '=', $ouName)->first();
+                    if ($ou) {
+                        $ou->addMember($user);
+                    }
+                }
+            }
+
+            return redirect()->route('ldap.users.index')
+                ->with('success', 'Użytkownik LDAP został pomyślnie zaktualizowany.');
         } catch (\Exception $e) {
-            Log::error("Błąd podczas pobierania użytkownika LDAP: " . $e->getMessage(), [
+            Log::error("Błąd podczas aktualizacji użytkownika LDAP: " . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all(),
             ]);
             return redirect()->back()
                 ->withInput()
-                ->with("error", "Wystąpił błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage());
+                ->with('error', 'Wystąpił błąd podczas aktualizacji użytkownika LDAP: ' . $e->getMessage());
         }
     }
 }

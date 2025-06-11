@@ -55,6 +55,7 @@
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->mail ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="admin-table-cell"><?php echo htmlspecialchars($user->uid ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{{ route('ldap.users.edit', $user->uid) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edytuj</a>
                             <form action="{{ route('ldap.users.delete', $user->cn) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')

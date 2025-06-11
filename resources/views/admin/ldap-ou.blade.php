@@ -42,7 +42,7 @@
                             <td class="admin-table-cell">{{ $unit->ou }}</td>
                             <td class="admin-table-cell">{{ $unit->description }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('ldap.organizational-units.show', $unit->ou) }}" class="text-blue-600 hover:text-blue-900 mr-3">Zobacz</a>
+                                <a href="{{ route('ldap.organizational-units.edit', $unit->ou) }}" class="text-green-600 hover:text-green-900 mr-3">Edytuj</a>
                             </td>
                         </tr>
                     @endforeach

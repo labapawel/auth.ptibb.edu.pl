@@ -29,7 +29,7 @@ return [
     [
         'title' => 'Grupy LDAP',
         'icon'  => 'fas fa-layer-group',
-        'url'   => url('admin/ldap/organizational-units'),
+        'url'   => url('admin/ldap/groups'),
         'priority' => 360
     ]
 ];

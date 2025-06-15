@@ -82,18 +82,25 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="organizational_unit" class="admin-form-label">Jednostka organizacyjna</label>
-                    @if($organizationalUnits === [])
-                        <p class="text-sm text-gray-500">Brak dostępnych jednostek organizacyjnych.</p>
+                    <label for="groups" class="admin-form-label">Grupy</label>
+                    @if(empty($groups) || count($groups) === 0)
+                        <p class="text-sm text-gray-500">Brak dostępnych grup.</p>
                     @else
-                        @foreach($organizationalUnits as $unit)
-                            <div class="flex items-center mb-2">
-                                <input type="checkbox" id="organizational_unit_{{ $unit->ou }}" name="organizational_unit[]" value="{{ $unit->ou }}" {{ (is_array(old('organizational_unit')) && in_array($unit->ou, old('organizational_unit'))) ? 'checked' : '' }}>
-                                <label for="organizational_unit_{{ $unit->ou }}" class="ml-2 admin-form-label">
-                                    {{ $unit->ou }}
-                                </label>
-                            </div>
-                        @endforeach
+                        <div class="mb-2">
+                            <input type="text" id="group-search" class="admin-form-input" placeholder="Wyszukaj grupy...">
+                        </div>
+                        <div id="group-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
+                            @foreach($groups as $group)
+                                <div class="group-item flex items-center mb-2">
+                                    <input type="checkbox" id="groups_{{ $group['cn'] }}" name="groups[]" value="{{ $group['cn'] }}" 
+                                           class="form-checkbox text-blue-600" 
+                                           {{ (is_array(old('groups')) && in_array($group['cn'], old('groups'))) ? 'checked' : '' }}>
+                                    <label for="groups_{{ $group['cn'] }}" class="ml-2 text-sm text-gray-700">
+                                        {{ $group['cn'] }} @if($group['description']) - {{ $group['description'] }} @endif
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
                 <!-- Ukryte pola, ustawiane automatycznie w kontrolerze -->
@@ -107,4 +114,58 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('group-search');
+        const groupItems = document.querySelectorAll('#group-list .group-item');
+        
+        if (searchInput && groupItems.length > 0) {
+            // Function to filter groups
+            function filterGroups(query) {
+                const lowerQuery = query.toLowerCase().trim();
+                let visibleCount = 0;
+                
+                groupItems.forEach(function(item) {
+                    const groupName = item.textContent.toLowerCase();
+                    const isVisible = lowerQuery === '' || groupName.includes(lowerQuery);
+                    item.style.display = isVisible ? 'flex' : 'none';
+                    if (isVisible) visibleCount++;
+                });
+                
+                // Show/hide "no results" message
+                updateNoResultsMessage(visibleCount === 0 && lowerQuery !== '');
+            }
+            
+            // Function to show/hide no results message
+            function updateNoResultsMessage(show) {
+                let noResultsMsg = document.getElementById('no-results-message');
+                
+                if (show && !noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'no-results-message';
+                    noResultsMsg.className = 'text-center text-gray-500 py-4';
+                    noResultsMsg.textContent = 'Nie znaleziono grup';
+                    document.getElementById('group-list').appendChild(noResultsMsg);
+                } else if (!show && noResultsMsg) {
+                    noResultsMsg.remove();
+                }
+            }
+            
+            // Search input event listener
+            searchInput.addEventListener('input', function(e) {
+                filterGroups(e.target.value);
+            });
+            
+            // Clear search when escape is pressed
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    e.target.value = '';
+                    filterGroups('');
+                    e.target.blur();
+                }
+            });
+        }
+    });
+</script>
 @endsection

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Ldap\User as LdapUser;
+use App\Ldap\Group;
 use Illuminate\Support\Facades\Log;
-use App\Ldap\Group as Group;
 
 class LdapUsersController extends Controller
 {
@@ -48,7 +48,17 @@ class LdapUsersController extends Controller
     }
     public function create()
     {
-        return view("admin.ldap-users-create");
+        try {
+            $groups = Group::all()->map(function ($group) {
+                return [
+                    "cn" => $group->getFirstAttribute("cn"),
+                    "description" => $group->getFirstAttribute("description"),
+                ];
+            });
+            return \AdminSection::view(view("admin.ldap-users-create", compact('groups'))->render());
+        } catch (\Exception $e) {
+            return \AdminSection::view(view("admin.ldap-users-create", ['groups' => []])->render());
+        }
     }
 
     public function store(Request $request)
@@ -62,6 +72,8 @@ class LdapUsersController extends Controller
             "uid" => "required|string",
             "mail" => "required|email",
             "userpassword" => "required|string|min:8",
+            "groups" => "nullable|array",
+            "groups.*" => "string|distinct",
         ]);
 
         try {
@@ -81,6 +93,26 @@ class LdapUsersController extends Controller
 
             Log::info('Próba zapisu użytkownika do LDAP', ['attributes' => $user->getAttributes()]);
             $user->save();
+
+            // Przypisz użytkownika do wybranych grup
+            if ($request->filled('groups')) {
+                Log::info('Przypisywanie użytkownika do grup', [
+                    'user' => $request->uid,
+                    'groups' => $request->groups
+                ]);
+                
+                foreach ($request->groups as $groupName) {
+                    $group = Group::where('cn', '=', $groupName)->first();
+                    if ($group) {
+                        $group->addMember($user);
+                        Log::info('Użytkownik przypisany do grupy', ['user' => $request->uid, 'group' => $groupName]);
+                    } else {
+                        Log::warning('Nie znaleziono grupy', ['group' => $groupName]);
+                    }
+                }
+            } else {
+                Log::info('Brak grup do przypisania');
+            }
 
             return redirect("admin/ldap/users")
                 ->with("success", "Użytkownik " . $request->cn ." został pomyślnie utworzony.");
@@ -102,9 +134,9 @@ class LdapUsersController extends Controller
             return redirect()->route('ldap.users.index')->with('error', 'Użytkownik nie został znaleziony.');
         }
 
-        $organizationalUnits = app(\App\Http\Controllers\Admin\LdapOuController::class)->getOrganizationalUnits()->getData();
+        $groups = app(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
         
-        return view('admin.ldap-users-edit', compact('user', 'organizationalUnits'));
+        return \AdminSection::view(view('admin.ldap-users-edit', compact('user', 'groups'))->render());
     }
 
     public function update(Request $request, $uid)
@@ -119,7 +151,7 @@ class LdapUsersController extends Controller
             'sn' => 'required|string',
             'givenname' => 'required|string',
             'mail' => 'required|email',
-            'organizational_units' => 'nullable|array',
+            'groups' => 'nullable|array',
         ]);
 
         try {
@@ -132,13 +164,35 @@ class LdapUsersController extends Controller
             Log::info('Próba aktualizacji użytkownika LDAP', ['attributes' => $user->getAttributes()]);
             $user->save();
 
-            // Handle organizational unit assignments
-            if ($request->filled('organizational_units')) {
-                foreach ($request->organizational_units as $ouName) {
-                    $ou = \App\Ldap\OrganizationalUnit::where('ou', '=', $ouName)->first();
-                    if ($ou) {
-                        $ou->addMember($user);
+            // Handle group assignments
+            if ($request->filled('groups')) {
+                Log::info('Aktualizacja przypisań użytkownika do grup', [
+                    'user' => $uid,
+                    'groups' => $request->groups
+                ]);
+
+                // First, remove user from all current groups
+                $allGroups = Group::all();
+                foreach ($allGroups as $existingGroup) {
+                    $existingGroup->removeMember($user);
+                }
+
+                // Then add to selected groups
+                foreach ($request->groups as $groupName) {
+                    $group = Group::where('cn', '=', $groupName)->first();
+                    if ($group) {
+                        $group->addMember($user);
+                        Log::info('Użytkownik przypisany do grupy podczas aktualizacji', ['user' => $uid, 'group' => $groupName]);
+                    } else {
+                        Log::warning('Nie znaleziono grupy podczas aktualizacji', ['group' => $groupName]);
                     }
+                }
+            } else {
+                // If no groups selected, remove user from all
+                Log::info('Usuwanie użytkownika ze wszystkich grup');
+                $allGroups = Group::all();
+                foreach ($allGroups as $existingGroup) {
+                    $existingGroup->removeMember($user);
                 }
             }
 

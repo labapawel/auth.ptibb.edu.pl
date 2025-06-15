@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LdapUsersController;
-use App\Http\Controllers\LdapOuController;
-use App\Ldap\OrganizationalUnit;
+use App\Http\Controllers\LdapGroupController;
+use App\Ldap\Group;
 use App\Ldap\User as LdapUser;
 // Group all admin routes with the admin middleware
 Route::middleware('admin')->group(function () {
@@ -19,8 +19,7 @@ Route::middleware('admin')->group(function () {
 	})->name('ldap.users.index');
 
 	Route::get('ldap/users/create', function () {
-		$organizationalUnits = App(\App\Http\Controllers\Admin\LdapOuController::class)->getOrganizationalUnits()->getData();
-		return AdminSection::view(view('admin.ldap-users-create', ['organizationalUnits' => $organizationalUnits])->render());
+		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->create();
 	})->name('ldap.users.create');
 
 	Route::post('ldap/users', function () {
@@ -30,6 +29,16 @@ Route::middleware('admin')->group(function () {
 	Route::delete('ldap/users/{distinguishedName}', function ($distinguishedName) {
 		$user = LdapUser::where('cn', '=', str_replace('%20', ' ', $distinguishedName))->first();
 		if ($user) {
+			// Usuń użytkownika ze wszystkich grup
+			$groups = Group::whereHas('members', function ($query) use ($user) {
+				$query->where('dn', '=', $user->getDn());
+			})->get();
+
+			foreach ($groups as $group) {
+				$group->members()->detach($user);
+				$group->save();
+			}
+
 			$user->delete();
 		}
 		return redirect('admin/ldap/users')->with('success', 'Użytkownik '. $user .' został usunięty.');
@@ -54,43 +63,36 @@ Route::middleware('admin')->group(function () {
 
 
 
-	Route::get('ldap/organizational-units', function () {
-		$organizationalUnits = App(App\Http\Controllers\Admin\LdapOuController::class)->getOrganizationalUnits()->getData();
-		return AdminSection::view(view('admin.ldap-ou', ['organizationalUnits' => $organizationalUnits])->render());
-	})->name('ldap.organizational-units.index');
+	// Trasy LDAP dla grup
+	Route::get('ldap/groups', function () {
+		$groups = App(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
+		return AdminSection::view(view('admin.ldap-groups', ['groups' => $groups])->render());
+	})->name('ldap.groups.index');
 
-
-
-	Route::get('ldap/organizational-units/create', function () {
+	Route::get('ldap/groups/create', function () {
 		$users = App(\App\Http\Controllers\Admin\LdapUsersController::class)->getUsers()->getData();
-		return AdminSection::view(view('admin.ldap-ou-create', ['users' => $users])->render());
-	})->name('ldap.organizational-units.create');
+		return AdminSection::view(view('admin.ldap-group-create', ['users' => $users])->render());
+	})->name('ldap.groups.create');
 
+	Route::post('ldap/groups', function () {
+		return app(\App\Http\Controllers\Admin\LdapGroupController::class)->store(request());
+	})->name('ldap.groups.store');
 
+	Route::get('ldap/groups/{cn}', function ($cn) {
+		return app(\App\Http\Controllers\Admin\LdapGroupController::class)->show($cn);
+	})->name('ldap.groups.show');
 
-	Route::post('ldap/organizational-units', function () {
-		return app(\App\Http\Controllers\Admin\LdapOuController::class)->store(request());
-	})->name('ldap.organizational-units.store');
+	Route::get('ldap/groups/{cn}/edit', function ($cn) {
+		return app(\App\Http\Controllers\Admin\LdapGroupController::class)->edit($cn);
+	})->name('ldap.groups.edit');
 
-	Route::get('ldap/organizational-units/{ou}', function ($ou) {
-		return app(\App\Http\Controllers\Admin\LdapOuController::class)->show($ou);
-	})->name('ldap.organizational-units.show');
+	Route::put('ldap/groups/{cn}', function ($cn) {
+		return app(\App\Http\Controllers\Admin\LdapGroupController::class)->update(request(), $cn);
+	})->name('ldap.groups.update');
 
-	Route::get('ldap/organizational-units/{ou}/edit', function ($ou) {
-		$organizationalUnit = OrganizationalUnit::where("ou", "=", $ou)->first()->getAttributes();
-		$users = LdapUser::all()->map(function ($user) {
-			return [
-				'uid' => $user->getFirstAttribute('uid'),
-				'cn' => $user->getFirstAttribute('cn'),
-				'mail' => $user->getFirstAttribute('mail'),
-			];
-		});
-		return AdminSection::view(view('admin.ldap-ou-edit', ['organizationalUnit' => $organizationalUnit, 'users' => $users])->render());
-	})->name('ldap.organizational-units.edit');
-
-	Route::put('ldap/organizational-units/{ou}', function ($ou) {
-		return app(\App\Http\Controllers\Admin\LdapOuController::class)->update(request(), $ou);
-	})->name('ldap.organizational-units.update');
+	Route::delete('ldap/groups/{cn}', function ($cn) {
+		return app(\App\Http\Controllers\Admin\LdapGroupController::class)->destroy($cn);
+	})->name('ldap.groups.destroy');
 
 
 	Route::post('ldap/users/{userDn}/assign-group', function ($userDn) {

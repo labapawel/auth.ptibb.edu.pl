@@ -54,20 +54,18 @@
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
+        </div>        <div class="mb-4">
+            <label for="group-search" class="admin-form-label">Wyszukaj grupy</label>
+            <input type="text" id="group-search" class="admin-form-input" placeholder="Wpisz nazwę grupy...">
         </div>
 
         <div class="mb-4">
-            <label for="organizational-unit-search" class="admin-form-label">Wyszukaj jednostki organizacyjne</label>
-            <input type="text" id="organizational-unit-search" class="admin-form-input" placeholder="Wpisz nazwę jednostki organizacyjnej...">
-        </div>
-
-        <div class="mb-4">
-            <label for="organizational_units" class="admin-form-label">Przypisz do jednostek organizacyjnych</label>
-            <div id="ou-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border rounded p-2 bg-white">
-                @foreach($organizationalUnits as $unit)
-                    <label class="ou-item flex items-center space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                        <input type="checkbox" name="organizational_units[]" value="{{ $unit['ou'] }}" class="form-checkbox text-blue-600">
-                        <span>{{ $unit['ou'] }} @if($unit['description'])<span class="text-xs text-gray-500">({{ $unit['description'] }})</span>@endif</span>
+            <label for="groups" class="admin-form-label">Przypisz do grup</label>
+            <div id="group-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border rounded p-2 bg-white">
+                @foreach($groups as $group)
+                    <label class="group-item flex items-center space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="groups[]" value="{{ $group['cn'] }}" class="form-checkbox text-blue-600">
+                        <span>{{ $group['cn'] }} @if($group['description'])<span class="text-xs text-gray-500">({{ $group['description'] }})</span>@endif</span>
                     </label>
                 @endforeach
             </div>

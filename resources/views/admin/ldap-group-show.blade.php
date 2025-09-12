@@ -7,8 +7,8 @@
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Podgląd grupy: {{ $group['cn'][0] }}</h2>
         <div class="flex gap-2">
-            <a href="{{ route('ldap.groups.edit', $group['cn'][0]) }}" class="admin-btn">Edytuj grupę</a>
-            <a href="{{ route('ldap.groups.index') }}" class="admin-btn-secondary">Powrót do listy</a>
+            <a href="{{ route('ldap.groups.edit', $group['cn'][0]) }}"><button class="admin-btn">Edytuj grupę</button></a>
+            <a href="{{ route('ldap.groups.index') }}"><button  class="admin-btn-secondary">Powrót do listy</button></a>
         </div>
     </div>
     

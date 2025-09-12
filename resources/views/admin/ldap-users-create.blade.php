@@ -6,7 +6,9 @@
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Dodaj użytkownika LDAP</h2>
-        <a href="/admin/ldap/users" class="admin-btn-secondary">Powrót</a>
+        <button type="button" onclick="window.location.href='/admin/ldap/users'" class="admin-btn-secondary">
+            Powrót
+        </button>
     </div>
     
     @if(

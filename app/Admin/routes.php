@@ -9,8 +9,7 @@ use App\Ldap\User as LdapUser;
 Route::middleware('admin')->group(function () {
 	// Dashboard route
 	Route::get('', ['as' => 'admin.dashboard', function () {
-		$content = __('lang.admin.dashboard');
-		return AdminSection::view($content, 'Dashboard');
+		return AdminSection::view(view('admin.dashboard')->render());
 	}]);
 	// Trasy LDAP dla administratorów
 	Route::get('ldap/users', function () {

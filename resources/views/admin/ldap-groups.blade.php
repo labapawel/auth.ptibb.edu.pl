@@ -6,7 +6,9 @@
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Grupy LDAP</h2>
-        <a href="{{ route('ldap.groups.create') }}" class="admin-btn">Dodaj grupę</a>
+        <a href="{{ route('ldap.groups.create') }}" class="btn btn-primary">
+            Dodaj grupę
+        </a>
     </div>
     
     @if(session('success'))

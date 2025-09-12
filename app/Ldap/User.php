@@ -34,7 +34,6 @@ s which attributes can be set via an array (e.g., User::create($data)).
             'objectClass',
         'cn',
         'sn',
-        
         'givenName',
         'uid',
         'uidNumber',

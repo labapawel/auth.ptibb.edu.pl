@@ -6,7 +6,7 @@
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Edytuj grupę: {{ $group['cn'][0] }}</h2>
-        <a href="{{ route('ldap.groups.show', $group['cn'][0]) }}" class="admin-btn-secondary">Anuluj</a>
+        <a href="{{ route('ldap.groups.show', $group['cn'][0]) }}"><button class="admin-btn-secondary">Anuluj</button></a>
     </div>
     
     @if(session('success'))
@@ -93,7 +93,7 @@
 
         <div class="mt-6 flex gap-4">
             <button type="submit" class="admin-btn">Zaktualizuj grupę</button>
-            <a href="{{ route('ldap.groups.show', $group['cn'][0]) }}" class="admin-btn-secondary">Anuluj</a>
+            <a href="{{ route('ldap.groups.show', $group['cn'][0]) }}"><button class="admin-btn-secondary">Anuluj</button></a>
         </div>
     </form>
 </div>

@@ -129,4 +129,11 @@ return [
         'back_to_login' => 'Powrót do logowania',
         'email_reset_link' => 'Wyślij link do resetowania hasła'
     ],
+    'passwords' => [
+        'reset' => 'Twoje hasło zostało zresetowane!',
+        'sent' => 'Wysłaliśmy link do resetowania hasła na Twój adres email!',
+        'throttled' => 'Proszę poczekać przed ponowną próbą.',
+        'token' => 'Token resetowania hasła jest nieprawidłowy.',
+        'user' => 'Nie możemy znaleźć użytkownika z tym adresem email.',
+    ],
 ];

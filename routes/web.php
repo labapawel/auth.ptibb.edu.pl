@@ -24,15 +24,10 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     
     Route::get('/', function () {
-        if(auth()->user()->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return view('welcome');
-        }
-        // if(auth()->user()->isAdmin) {
+        // if(!auth()->user()->isAdmin()) {
         //     return redirect()->route('admin.dashboard');
-        // }else{
-        //     return view('welcome');
+        // } else {
+            return view('welcome');
         // }
     })->name('welcome');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

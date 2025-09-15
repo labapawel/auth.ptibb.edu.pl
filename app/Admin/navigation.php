@@ -11,25 +11,30 @@ return [
     [
         'title' => __('lang.admin.dashboard'),
         'icon'  => 'fas fa-tachometer-alt',
-        'url'   => url('admin'),
-        'priority' => 100
+        'url'   => url('admin')
     ],
     [
         'title' => __('lang.admin.users'),
         'icon'  => 'fas fa-users',
-        'url'   => url('admin/users'),
-        'priority' => 200
+        'url'   => url('admin/users')
     ],
     [
-    'title' => 'Użytkownicy LDAP',
-    'icon'  => 'fas fa-users-cog',
-    'url'   => url('admin/ldap/users'),
-    'priority' => 350
+        'title' => 'Użytkownicy LDAP',
+        'icon'  => 'fas fa-users-cog',
+        'url'   => url('admin/ldap/users')
     ],
     [
         'title' => 'Grupy LDAP',
         'icon'  => 'fas fa-layer-group',
-        'url'   => url('admin/ldap/groups'),
-        'priority' => 360
+        'url'   => url('admin/ldap/groups')
+    ],
+    // Wyloguj - dodane na końcu aby było na dole menu
+    [
+        'title' => 'Wyloguj',
+        'icon'  => 'fas fa-sign-out-alt',
+        'url'   => url('admin/logout'),
+        'attributes' => [
+            'style' => 'border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 10px;'
+        ]
     ]
 ];

@@ -1,13 +1,13 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Grupy LDAP')
+@section('title', __('lang.admin.ldap_groups'))
 
 @section('content')
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Grupy LDAP</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">{{ __('lang.admin.ldap_groups') }}</h2>
         <a href="{{ route('ldap.groups.create') }}" class="btn btn-primary">
-            Dodaj grupę
+            {{ __('lang.admin.add_group') }}
         </a>
     </div>
     
@@ -25,7 +25,7 @@
 
     @if($groups === [])
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded" role="alert">
-            <p>Brak grup LDAP do wyświetlenia.</p>
+            <p>{{ __('lang.admin.no_ldap_groups') }}</p>
         </div>
     @else
         <div class="admin-card overflow-hidden">
@@ -33,11 +33,11 @@
                 <table class="admin-table">
                     <thead class="admin-table-header">
                         <tr>
-                            <th class="admin-table-head">Nazwa grupy</th>
-                            <th class="admin-table-head">Opis</th>
+                            <th class="admin-table-head">{{ __('lang.admin.group_name') }}</th>
+                            <th class="admin-table-head">{{ __('lang.admin.description') }}</th>
                             <th class="admin-table-head">GID</th>
-                            <th class="admin-table-head">Członkowie</th>
-                            <th class="admin-table-head">Akcje</th>
+                            <th class="admin-table-head">{{ __('lang.admin.members') }}</th>
+                            <th class="admin-table-head">{{ __('lang.admin.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -48,12 +48,12 @@
                     <td class="admin-table-cell">{{ $group->gidnumber }}</td>
                     <td class="admin-table-cell">{{ $group->memberCount }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('ldap.groups.show', $group->cn) }}" class="text-blue-600 hover:text-blue-900 mr-3">Podgląd</a>
-                                <a href="{{ route('ldap.groups.edit', $group->cn) }}" class="text-green-600 hover:text-green-900 mr-3">Edytuj</a>
+                                <a href="{{ route('ldap.groups.show', $group->cn) }}" class="text-blue-600 hover:text-blue-900 mr-3">{{ __('lang.admin.view') }}</a>
+                                <a href="{{ route('ldap.groups.edit', $group->cn) }}" class="text-green-600 hover:text-green-900 mr-3">{{ __('lang.admin.edit') }}</a>
                                 <form method="POST" action="{{ route('ldap.groups.destroy', $group->cn) }}" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Czy na pewno chcesz usunąć tę grupę?')">Usuń</button>
+                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('{{ __('lang.admin.confirm_delete_group') }}')">{{ __('lang.admin.delete') }}</button>
                                 </form>
                             </td>
                         </tr>

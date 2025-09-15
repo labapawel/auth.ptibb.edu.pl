@@ -41,17 +41,24 @@ class LdapGroupController extends Controller
     public function getGroups()
     {
         try {
-            $groups = Group::all()->map(function ($group) {
-                return [
-                    "cn" => $group->getFirstAttribute("cn"),
-                    "description" => $group->getFirstAttribute("description"),
-                    "gidnumber" => $group->getFirstAttribute("gidnumber"),
-                    "members" => $group->getAttribute("memberuid") ?: [],
-                    "memberCount" => count($group->getAttribute("memberuid") ?: []),
-                ];
+            // Cache na 5 minut
+            $groups = cache()->remember('ldap_groups_list', 300, function () {
+                return Group::all()->map(function ($group) {
+                    $attributes = $group->getAttributes();
+                    $members = $attributes["memberuid"] ?? [];
+                    return [
+                        "cn" => $attributes["cn"][0] ?? '',
+                        "description" => $attributes["description"][0] ?? '',
+                        "gidnumber" => $attributes["gidnumber"][0] ?? '',
+                        "members" => $members,
+                        "memberCount" => count($members),
+                    ];
+                });
             });
+            
             return response()->json($groups);
         } catch (\Exception $e) {
+            Log::error('Błąd podczas pobierania grup LDAP: ' . $e->getMessage());
             return response()->json(["error" => "Nie można połączyć się z serwerem LDAP: " . $e->getMessage()], 500);
         }
     }    public function show($cn)
@@ -123,6 +130,9 @@ class LdapGroupController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Wystąpił błąd podczas tworzenia grupy LDAP: ' . $e->getMessage());
+        } finally {
+            // Wyczyść cache po utworzeniu grupy
+            $this->clearLdapCache();
         }
     }
 
@@ -203,6 +213,9 @@ class LdapGroupController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Wystąpił błąd podczas aktualizacji grupy LDAP: ' . $e->getMessage());
+        } finally {
+            // Wyczyść cache po aktualizacji grupy
+            $this->clearLdapCache();
         }
     }
 
@@ -220,6 +233,26 @@ class LdapGroupController extends Controller
         } catch (\Exception $e) {
             Log::error('Błąd podczas usuwania grupy LDAP: ' . $e->getMessage());
             return redirect()->route('ldap.groups.index')->with('error', 'Wystąpił błąd podczas usuwania grupy.');
+        } finally {
+            // Wyczyść cache po usunięciu grupy
+            $this->clearLdapCache();
         }
+    }
+
+    /**
+     * Wyczyść cache LDAP po zmianach w grupach
+     */
+    private function clearLdapCache()
+    {
+        cache()->forget('ldap_groups_list');
+        cache()->forget('ldap_users_for_group_create');
+        cache()->forget('dashboard_ldap_groups_count');
+        cache()->forget('all_ldap_groups');
+        cache()->forget('ldap_groups_for_create');
+        cache()->forget('ldap_groups_for_edit');
+        
+        // Wyczyść również cache użytkowników, które mogą być powiązane
+        cache()->forget('ldap_users_list');
+        cache()->forget('dashboard_ldap_users_count');
     }
 }

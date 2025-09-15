@@ -55,6 +55,14 @@ Route::middleware('admin')->group(function () {
 		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->update(request(), $uid);
 	})->name('ldap.users.update');
 
+	Route::get('ldap/users/{uid}/groups', function ($uid) {
+		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->getUserGroups($uid);
+	})->name('ldap.users.groups');
+
+	Route::post('ldap/clear-cache', function () {
+		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->clearCache();
+	})->name('ldap.clear.cache');
+
 
 
 
@@ -64,12 +72,16 @@ Route::middleware('admin')->group(function () {
 
 	// Trasy LDAP dla grup
 	Route::get('ldap/groups', function () {
-		$groups = App(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
+		$groups = cache()->remember('ldap_groups_list', 300, function () {
+			return App(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
+		});
 		return AdminSection::view(view('admin.ldap-groups', ['groups' => $groups])->render());
 	})->name('ldap.groups.index');
 
 	Route::get('ldap/groups/create', function () {
-		$users = App(\App\Http\Controllers\Admin\LdapUsersController::class)->getUsers()->getData();
+		$users = cache()->remember('ldap_users_for_group_create', 300, function () {
+			return App(\App\Http\Controllers\Admin\LdapUsersController::class)->getUsers()->getData();
+		});
 		return AdminSection::view(view('admin.ldap-group-create', ['users' => $users])->render());
 	})->name('ldap.groups.create');
 

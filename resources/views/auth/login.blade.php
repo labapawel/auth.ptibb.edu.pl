@@ -29,19 +29,19 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
-                    <!-- Email Address -->
+                    <!-- username Address -->
                     <div class="mb-4">
-                        <x-input-label for="email" :value="__('lang.logowanie.email')" class="text-gray-700 dark:text-gray-300" />
-                        <x-text-input id="email" 
+                        <x-input-label for="username" :value="__('lang.logowanie.username')" class="text-gray-700 dark:text-gray-300" />
+                        <x-text-input id="username" 
                                       class="block mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 
                                              focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" 
-                                      type="email" 
-                                      name="email" 
-                                      :value="old('email')" 
+                                      type="username" 
+                                      name="username" 
+                                      :value="old('username')" 
                                       required 
                                       autofocus 
                                       autocomplete="username" />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('username')" class="mt-2" />
                     </div>
 
                     <!-- Password -->

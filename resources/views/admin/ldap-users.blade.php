@@ -1,17 +1,17 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Użytkownicy LDAP')
+@section('title', __('lang.admin.ldap_users'))
 
 @section('content')
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Użytkownicy LDAP</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">{{ __('lang.admin.ldap_users') }}</h2>
         <div class="space-x-2">
             <button onclick="window.location.href='{{ route('admin.dashboard') }}'" type="button" class="admin-btn-secondary">
-                Powrót do panelu
+                {{ __('lang.admin.back_to_panel') }}
             </button>
             <button onclick="window.location.href='{{ route('ldap.users.create') }}'" type="button" class="admin-btn">
-                Dodaj użytkownika
+                {{ __('lang.admin.add_user_btn') }}
             </button>
 
         </div>
@@ -31,9 +31,9 @@
     <div class="admin-card mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="search" class="admin-form-label">Szukaj użytkowników</label>
-                <input type="text" id="search" name="search" class="admin-form-input" placeholder="Szukaj po imieniu, nazwisku, emailu lub loginie">
-                <p class="mt-1 text-xs text-gray-500">Wpisz tekst aby filtrować użytkowników. Naciśnij Escape aby wyczyścić.</p>
+                <label for="search" class="admin-form-label">{{ __('lang.admin.search_users') }}</label>
+                <input type="text" id="search" name="search" class="admin-form-input" placeholder="{{ __('lang.admin.search_placeholder') }}">
+                <p class="mt-1 text-xs text-gray-500">{{ __('lang.admin.escape_to_clear') }}</p>
             </div>
         </div>
     </div>
@@ -43,11 +43,11 @@
                 <thead class="admin-table-header">
                     <tr>
                         <th class="admin-table-head">CN</th>
-                        <th class="admin-table-head">Imię</th>
-                        <th class="admin-table-head">Nazwisko</th>
-                        <th class="admin-table-head">Email</th>
-                        <th class="admin-table-head">Login (UID)</th>
-                        <th class="admin-table-head">Akcje</th>
+                        <th class="admin-table-head">{{ __('lang.admin.first_name') }}</th>
+                        <th class="admin-table-head">{{ __('lang.admin.last_name') }}</th>
+                        <th class="admin-table-head">{{ __('lang.admin.email') }}</th>
+                        <th class="admin-table-head">{{ __('lang.admin.login_uid') }}</th>
+                        <th class="admin-table-head">{{ __('lang.admin.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody id="user-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -71,7 +71,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-gray-500 dark:text-gray-400">Brak użytkowników LDAP.</td>
+                        <td colspan="5" class="text-center py-4 text-gray-500 dark:text-gray-400">{{ __('lang.admin.no_ldap_users') }}</td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -80,11 +80,11 @@
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex justify-between">
                 <div class="text-sm text-gray-500 dark:text-gray-400" id="results-counter">
-                    Wyświetlanie <?php echo isset($users) ? count($users) : 0; ?> z <?php echo isset($users) ? count($users) : 0; ?> wyników
+                    {{ __('lang.admin.showing') }} <?php echo isset($users) ? count($users) : 0; ?> {{ __('lang.admin.of') }} <?php echo isset($users) ? count($users) : 0; ?> {{ __('lang.admin.results') }}
                 </div>
                 <div class="flex space-x-2">
-                    <button class="admin-btn-secondary text-sm py-1 px-3">Poprzednia</button>
-                    <button class="admin-btn-secondary text-sm py-1 px-3">Następna</button>
+                    <button class="admin-btn-secondary text-sm py-1 px-3">{{ __('lang.admin.previous') }}</button>
+                    <button class="admin-btn-secondary text-sm py-1 px-3">{{ __('lang.admin.next') }}</button>
                 </div>
             </div>
         </div>

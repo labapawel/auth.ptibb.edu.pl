@@ -1,13 +1,13 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dodaj użytkownika LDAP')
+@section('title', __('lang.admin.add_ldap_user'))
 
 @section('content')
 <div class="admin-container">
     <div class="mb-6 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Dodaj użytkownika LDAP</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">{{ __('lang.admin.add_ldap_user') }}</h2>
         <button type="button" onclick="window.location.href='/admin/ldap/users'" class="admin-btn-secondary">
-            Powrót
+            {{ __('lang.admin.back_to_panel') }}
         </button>
     </div>
     
@@ -49,47 +49,47 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="givenname" class="admin-form-label">Imię</label>
+                    <label for="givenname" class="admin-form-label">{{ __('lang.admin.first_name') }}</label>
                     <input type="text" id="givenname" name="givenname" value="{{ old('givenname') }}" class="admin-form-input" required>
                     @error('givenname')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="sn" class="admin-form-label">Nazwisko</label>
+                    <label for="sn" class="admin-form-label">{{ __('lang.admin.last_name') }}</label>
                     <input type="text" id="sn" name="sn" value="{{ old('sn') }}" class="admin-form-input" required>
                     @error('sn')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="mail" class="admin-form-label">Email</label>
+                    <label for="mail" class="admin-form-label">{{ __('lang.admin.email') }}</label>
                     <input type="email" id="mail" name="mail" value="{{ old('mail') }}" class="admin-form-input" required>
                     @error('mail')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="uid" class="admin-form-label">Login (UID)</label>
+                    <label for="uid" class="admin-form-label">{{ __('lang.admin.login_uid') }}</label>
                     <input type="text" id="uid" name="uid" value="{{ old('uid') }}" class="admin-form-input" required>
                     @error('uid')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="userpassword" class="admin-form-label">Hasło</label>
+                    <label for="userpassword" class="admin-form-label">{{ __('lang.admin.password') }}</label>
                     <input type="password" id="userpassword" name="userpassword" class="admin-form-input" required>
                     @error('userpassword')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="groups" class="admin-form-label">Grupy</label>
+                    <label for="groups" class="admin-form-label">{{ __('lang.admin.groups') }}</label>
                     @if(empty($groups) || count($groups) === 0)
                         <p class="text-sm text-gray-500">Brak dostępnych grup.</p>
                     @else
                         <div class="mb-2">
-                            <input type="text" id="group-search" class="admin-form-input" placeholder="Wyszukaj grupy...">
+                            <input type="text" id="group-search" class="admin-form-input" placeholder="{{ __('lang.admin.search_groups_placeholder') }}">
                         </div>
                         <div id="group-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
                             @foreach($groups as $group)
@@ -110,7 +110,7 @@
                 <input type="hidden" id="loginshell" name="loginshell" value="">
             </div>            <div class="mt-6">
                 <button type="submit" class="admin-btn">
-                    Dodaj użytkownika
+                    {{ __('lang.admin.add_user_btn') }}
                 </button>
             </div>
         </form>

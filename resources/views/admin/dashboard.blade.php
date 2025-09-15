@@ -4,48 +4,52 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Statystyki -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Użytkownicy DB</h3>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">{{ __('lang.admin.users_db') }}</h3>
                 <p class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ \App\Models\User::count() }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Użytkownicy w bazie danych</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ __('lang.admin.users_database') }}</p>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Użytkownicy LDAP</h3>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">{{ __('lang.admin.users_ldap') }}</h3>
                 @php
                     try {
-                        $ldapUsersCount = \App\Ldap\User::all()->count();
+                        $ldapUsersCount = cache()->remember('dashboard_ldap_users_count', 600, function () {
+                            return \App\Ldap\User::all()->count();
+                        });
                     } catch (\Exception $e) {
                         $ldapUsersCount = 'N/A';
                     }
                 @endphp
                 <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $ldapUsersCount }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Użytkownicy LDAP</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ __('lang.admin.users_ldap') }}</p>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Grupy LDAP</h3>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">{{ __('lang.admin.groups_ldap') }}</h3>
                 @php
                     try {
-                        $ldapGroupsCount = \App\Ldap\Group::all()->count();
+                        $ldapGroupsCount = cache()->remember('dashboard_ldap_groups_count', 600, function () {
+                            return \App\Ldap\Group::all()->count();
+                        });
                     } catch (\Exception $e) {
                         $ldapGroupsCount = 'N/A';
                     }
                 @endphp
                 <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ $ldapGroupsCount }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Grupy LDAP</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ __('lang.admin.groups_ldap') }}</p>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">VPN</h3>
                 <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">{{ \App\Models\User::where('permission', 1)->count() }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Klienci VPN</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ __('lang.admin.vpn_clients') }}</p>
             </div>
         </div>
 
         <!-- Szybkie akcje LDAP -->
         <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Zarządzanie LDAP</h3>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{ __('lang.admin.ldap_management') }}</h3>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -56,8 +60,8 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Użytkownicy LDAP</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Zarządzaj kontami użytkowników</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('lang.admin.users_ldap') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('lang.admin.manage_user_accounts') }}</p>
                         </div>
                     </a>
 
@@ -68,8 +72,8 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Grupy LDAP</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Zarządzaj grupami użytkowników</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('lang.admin.groups_ldap') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('lang.admin.manage_user_groups') }}</p>
                         </div>
                     </a>
 
@@ -80,8 +84,8 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Nowy użytkownik</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Dodaj nowe konto LDAP</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('lang.admin.new_user') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('lang.admin.add_new_ldap_account') }}</p>
                         </div>
                     </a>
 
@@ -92,8 +96,8 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Nowa grupa</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Utwórz nową grupę LDAP</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('lang.admin.new_group') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('lang.admin.create_new_ldap_group') }}</p>
                         </div>
                     </a>
                 </div>
@@ -103,22 +107,22 @@
         <!-- Ostatnie aktywności -->
         <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Ostatnie aktywności</h3>
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{ __('lang.admin.recent_activities') }}</h3>
             </div>
             <div class="p-6">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Użytkownik</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akcja</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('lang.admin.user') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('lang.admin.action') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('lang.admin.date') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <!-- Tutaj będą wyświetlane rzeczywiste dane -->
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Brak danych</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ __('lang.admin.no_data') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">-</td>
                             </tr>

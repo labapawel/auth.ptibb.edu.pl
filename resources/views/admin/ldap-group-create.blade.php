@@ -1,10 +1,10 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dodaj grupę LDAP')
+@section('title', __('lang.admin.add_group'))
 
 @section('content')
 <div class="admin-container max-w-lg mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-6">Dodaj nową grupę</h2>
+    <h2 class="text-2xl font-bold mb-6">{{ __('lang.admin.add_new_group') }}</h2>
     @if(session('error'))
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
             <p>{{ session('error') }}</p>
@@ -14,16 +14,16 @@
     <form method="POST" action="{{ route('ldap.groups.store') }}">
         @csrf
         <div class="mb-4">
-            <label for="group_name" class="block text-sm font-medium text-gray-700">Nazwa grupy (np. klasa2025a)</label>
+            <label for="group_name" class="block text-sm font-medium text-gray-700">{{ __('lang.admin.group_name_example') }}</label>
             <input type="text" id="group_name" name="group_name" class="admin-form-input" required>
         </div>
         <div class="mb-4">
-            <label for="description" class="block text-sm font-medium text-gray-700">Opis (opcjonalnie)</label>
+            <label for="description" class="block text-sm font-medium text-gray-700">{{ __('lang.admin.description') }} (opcjonalnie)</label>
             <input type="text" id="description" name="description" class="admin-form-input">
         </div>
         <div class="mb-4">
-            <label for="user-search" class="block text-sm font-medium text-gray-700">Wyszukaj użytkowników</label>
-            <input type="text" id="user-search" class="admin-form-input" placeholder="Wpisz nazwę użytkownika...">
+            <label for="user-search" class="block text-sm font-medium text-gray-700">{{ __('lang.admin.search_users') }}</label>
+            <input type="text" id="user-search" class="admin-form-input" placeholder="{{ __('lang.admin.enter_group_name') }}">
         </div>
         <div class="mb-4">
             <label for="users" class="block text-sm font-medium text-gray-700">Wybierz użytkowników do przypisania</label>

@@ -80,7 +80,23 @@
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex justify-between">
                 <div class="text-sm text-gray-500 dark:text-gray-400" id="results-counter">
-                    {{ __('lang.admin.showing') }} <?php echo isset($users) ? count($users) : 0; ?> {{ __('lang.admin.of') }} <?php echo isset($users) ? count($users) : 0; ?> {{ __('lang.admin.results') }}
+                        {{ __('lang.admin.showing') }}
+                        <?php
+                            if (isset($users)) {
+                                if (is_countable($users)) {
+                                    echo count($users);
+                                } elseif (method_exists($users, 'count')) {
+                                    echo $users->count();
+                                } elseif (is_object($users) && property_exists($users, 'count')) {
+                                    echo $users->count;
+                                } else {
+                                    echo 0;
+                                }
+                            } else {
+                                echo 0;
+                            }
+                        ?>
+                        {{ __('lang.admin.results') }}
                 </div>
                 <div class="flex space-x-2">
                     <button class="admin-btn-secondary text-sm py-1 px-3">{{ __('lang.admin.previous') }}</button>

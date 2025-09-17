@@ -22,26 +22,30 @@ class User extends Model implements Authenticatable
         'inetOrgPerson',
         'posixAccount',
     ];
-    
+
     /**
-     * The attributes that are mass assignable.
-     * This 
-s which attributes can be set via an array (e.g., User::create($data)).
-     * Note: 'userPrincipalName' and 'samAccountName' are typically for Active Directory.
-     * If using OpenLDAP without custom schema, consider removing them from here.
+     * Attribute mappings for LDAP attributes to model properties.
      */
+    protected array $attributes = [
+        'uid' => 'objectguid',
+    ];
+
     protected $fillable = [
             'objectClass',
-        'cn',
-        'sn',
-        'givenName',
-        'uid',
-        'uidNumber',
-        'gidNumber',
-        'homeDirectory',
-        'loginShell',
-        'mail',
-        'userPassword',
-        
-    ];
-}
+            'entryUUID',
+            'objectguid',
+            'cn',
+            'sn',
+            'givenName',
+            'uid',
+            'uidNumber',
+            'gidNumber',
+            'homeDirectory',
+            'loginShell',
+            'mail',
+            'userPassword',
+
+        ];
+
+
+    }

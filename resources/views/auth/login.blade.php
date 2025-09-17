@@ -35,7 +35,7 @@
                         <x-text-input id="username" 
                                       class="block mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 
                                              focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" 
-                                      type="username" 
+                                      type="email" 
                                       name="username" 
                                       :value="old('username')" 
                                       required 

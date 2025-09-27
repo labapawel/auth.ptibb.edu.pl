@@ -3,98 +3,38 @@
 use SleepingOwl\Admin\Navigation\Page;
 
 // Default check access logic
-// AdminNavigation::setAccessLogic(function(Page $page) {
-// 	   return auth()->user()->isSuperAdmin();
-// });
-//
-// AdminNavigation::addPage(\App\User::class)->setTitle('test')->setPages(function(Page $page) {
-// 	  $page
-//		  ->addPage()
-//	  	  ->setTitle('Dashboard')
-//		  ->setUrl(route('admin.dashboard'))
-//		  ->setPriority(100);
-//
-//	  $page->addPage(\App\User::class);
-// });
-//
-// // or
-//
-// AdminSection::addMenuPage(\App\User::class)
+AdminNavigation::setAccessLogic(function(Page $page) {
+    return auth()->user()->isAdmin();
+});
 
 return [
     [
-        'title' => 'Dashboard',
+        'title' => __('lang.admin.dashboard'),
         'icon'  => 'fas fa-tachometer-alt',
-        'url'   => route('admin.dashboard'),
+        'url'   => url('admin')
     ],
-
     [
-        'title' => 'Information',
-        'icon'  => 'fas fa-info-circle',
-        'url'   => route('admin.information'),
+        'title' => __('lang.admin.users'),
+        'icon'  => 'fas fa-users',
+        'url'   => url('admin/users')
     ],
-
-           (new Page(\App\Models\User::class))
-               ->setPriority(100)
-               ->setIcon('fas fa-users')
-               ->setTitle(__('lang.admin.users'))
-            //    ->setUrl('users')
-            //    ->setAccessLogic(function (Page $page) {
-            //        return auth()->user()->isSuperAdmin();
-            //    })
-               ,
-
-
-    // Examples
-    // [
-    //    'title' => 'Content',
-    //    'pages' => [
-    //
-    //        \App\User::class,
-    //
-    //        // or
-    //
-    //        (new Page(\App\User::class))
-    //            ->setPriority(100)
-    //            ->setIcon('fas fa-users')
-    //            ->setUrl('users')
-    //            ->setAccessLogic(function (Page $page) {
-    //                return auth()->user()->isSuperAdmin();
-    //            }),
-    //
-    //        // or
-    //
-    //        new Page([
-    //            'title'    => 'News',
-    //            'priority' => 200,
-    //            'model'    => \App\News::class
-    //        ]),
-    //
-    //        // or
-    //        (new Page(/* ... */))->setPages(function (Page $page) {
-    //            $page->addPage([
-    //                'title'    => 'Blog',
-    //                'priority' => 100,
-    //                'model'    => \App\Blog::class
-	//		      ));
-    //
-	//		      $page->addPage(\App\Blog::class);
-    //	      }),
-    //
-    //        // or
-    //
-    //        [
-    //            'title'       => 'News',
-    //            'priority'    => 300,
-    //            'accessLogic' => function ($page) {
-    //                return $page->isActive();
-    //		      },
-    //            'pages'       => [
-    //
-    //                // ...
-    //
-    //            ]
-    //        ]
-    //    ]
-    // ]
+    [
+        'title' => 'Użytkownicy LDAP',
+        'icon'  => 'fas fa-users-cog',
+        'url'   => url('admin/ldap/users')
+    ],
+    [
+        'title' => 'Grupy LDAP',
+        'icon'  => 'fas fa-layer-group',
+        'url'   => url('admin/ldap/groups')
+    ],
+    // Wyloguj - dodane na końcu aby było na dole menu
+    [
+        'title' => 'Wyloguj',
+        'icon'  => 'fas fa-sign-out-alt',
+        'url'   => url('admin/logout'),
+        'attributes' => [
+            'style' => 'border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 10px;'
+        ]
+    ]
 ];

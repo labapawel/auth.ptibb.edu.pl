@@ -7,10 +7,15 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http; // Added HTTP facade
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use App\Ldap\User;
+use App\Http\Controllers\TokenController;
+
 
 class NewPasswordController extends Controller
 {
@@ -27,6 +32,8 @@ class NewPasswordController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+
+
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -35,27 +42,38 @@ class NewPasswordController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $tokenData = TokenController::findToken($request);
 
-                event(new PasswordReset($user));
+        if (!$tokenData) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => __('Token jest niepoprawny lub adres e-mail jest błędny.')]);
+        }
+        
+        // Czas ważności tokena to 60 minut.
+        if (TokenController::isTokenValid($tokenData) === false) {
+            TokenController::deleteToken($request->email);
+
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => __('Token wygasł. Wygeneruj nowy link do resetowania hasła.')]);
+        }
+        try {
+            $ldapUser = User::where('uid', $request->input('email'))->first();
+
+            if (!$ldapUser) {
+                return back()->withInput($request->only('email'))
+                    ->withErrors(['email' => __('Email jest niepoprawny lub użytkownik nie istnieje.')]);
             }
-        );
+                $ldapUser->setLdapPassword($request->password);
+                $ldapUser->save(); 
+                TokenController::deleteToken($request->email);
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+                return redirect()->route('login')->with('status', __('Twoje hasło zostało zresetowane pomyślnie.'));
+
+        } catch (\Exception $e) {
+                // Ogólny błąd (np. brak uprawnień, problem z połączeniem)
+                // W dewelopmencie możesz użyć dd($e->getMessage())
+                return back()->withErrors(['email' => __('Wystąpił błąd podczas zmiany hasła w LDAP. Sprawdź logi.')]);
+        }
     }
 }
+

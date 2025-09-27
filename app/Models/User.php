@@ -2,28 +2,37 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+use Illuminate\Notifications\Notifiable;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+
+class User extends Authenticatable implements LdapAuthenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use Notifiable, AuthenticatesWithLdap;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+    const PERMISSION_VPN_CLIENT = 1;   // 0001
+    const PERMISSION_TASK = 2;         // 0010
+    const PERMISSION_PC = 4;           // 0100
+    const PERMISSION_EMAIL = 8;        // 1000
+    const PERMISSION_ADMIN = 32;       // 100000
+
     protected $fillable = [
         'name',
+        'username',
         'email',
-        'password',
         'permission',
+        'password',
+        'guid',
     ];
-
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -45,14 +54,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the working hours for the user.
-     */
-    public function workingHours()
-    {
-        return $this->hasMany(WorkingHours::class);
-    }
-    
-    /**
      * Check if user has a specific permission
      * 
      * @param int $permission
@@ -60,36 +61,72 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return ($this->permissions & $permission) === $permission;
+        return ($this->attributes["permission"] & $permission) == $permission;
     }
 
-    /**
-     * Check if user is a regular user
-     * 
-     * @return bool
-     */
-    public function isUser()
+    public function isVPNclient()
     {
-        return $this->hasPermission(1);
+        return $this->hasPermission(self::PERMISSION_VPN_CLIENT);
     }
 
-    /**
-     * Check if user is an admin
-     * 
-     * @return bool
-     */
+    public function isTaskPermission()
+    {
+        return $this->hasPermission(self::PERMISSION_TASK);
+    }
+
+    public function isPC()
+    {
+        return $this->hasPermission(self::PERMISSION_PC);
+    }
+
+    public function isEmailPermission()
+    {
+        return $this->hasPermission(self::PERMISSION_EMAIL);
+    }
+
     public function isAdmin()
     {
-        return $this->hasPermission(2);
+        return $this->hasPermission(self::PERMISSION_ADMIN);
     }
-
-    /**
-     * Check if user is a superadmin
-     * 
-     * @return bool
-     */
-    public function isSuperAdmin()
+    public function allPermissions()
     {
-        return $this->hasPermission(4);
+        $permissions = [];
+        if ($this->isVPNclient()) {
+            $permissions[] = self::PERMISSION_VPN_CLIENT;
+        }
+        if ($this->isTaskPermission()) {
+            $permissions[] = self::PERMISSION_TASK;
+        }
+        if ($this->isPC()) {
+            $permissions[] = self::PERMISSION_PC;
+        }
+        if ($this->isEmailPermission()) {
+            $permissions[] = self::PERMISSION_EMAIL;
+        }
+        if ($this->isAdmin()) {
+            $permissions[] = self::PERMISSION_ADMIN;
+        }
+        return $permissions;
+    }
+    public function setPermissionAttribute($permissions)
+    {
+        $this->attributes['permission'] = 0;
+        foreach ($permissions as $permission) {
+            $this->attributes['permission'] |= $permission;
+        }
+    }
+    public function getPermissionAttribute()
+    {
+        $permissions = [];
+        $i=1;
+        while($i<255)
+        {
+            if(($this->attributes['permission'] & $i) == $i)
+            {
+                $permissions[] = $i;
+            }
+            $i<<= 1;
+        }
+        return $permissions;
     }
 }

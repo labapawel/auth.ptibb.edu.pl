@@ -1,95 +1,121 @@
 <?php
-
 namespace App\Admin\Sections;
 
 use SleepingOwl\Admin\Contracts\Display\DisplayInterface;
 use SleepingOwl\Admin\Contracts\Form\FormInterface;
 use SleepingOwl\Admin\Section;
 use SleepingOwl\Admin\Contracts\Initializable;
-// use App\Admin\Form\Element\WeeklyCalendarElement;
+use App\Models\User;
 
 class Users extends Section implements Initializable
 {
-    /**
-     * @var string
-     */
-    protected $title ;
+    protected $title;
     protected $checkAccess = false;
+    
+    public function initialize() {}
 
-    public function initialize() {
-        $this->title =  __('lang.title.users');
-      }
-  
-    /**
-     * Display table for users.
-     *
-     * @return DisplayInterface
-     */
     public function onDisplay()
     {
         $display = \AdminDisplay::datatablesAsync()
             ->setColumns([
-                // \AdminColumn::custom('Rola', function ($model) {
-                //     return  "<img src=\"".$model->avatar."?a".date('YmdH')."\" 
-                //     alt=\"Zdjęcie profilowe\" class=\"img-thumbnail\" style=\"max-height: 100px;\">";
-                // }),
                 \AdminColumn::text('id', '#')->setWidth('30px'),
-
                 \AdminColumn::link('name', 'Nazwa'),
                 \AdminColumn::text('email', 'Email'),
+    
+                \AdminColumn::custom('Role', function ($model) {
+                    $permissionMap = [
+                        User::PERMISSION_VPN_CLIENT => 'VPN',
+                        User::PERMISSION_TASK => 'Task',
+                        User::PERMISSION_PC => 'PC',
+                        User::PERMISSION_EMAIL => 'Email',
+                        User::PERMISSION_ADMIN => 'Admin',
+                    ];
+                    
+                    $userPermissions = $model->allPermissions();
+                    $displayPermissions = [];
+                    
+                    foreach ($userPermissions as $permission) {
+                        if (isset($permissionMap[$permission])) {
+                            $displayPermissions[] = $permissionMap[$permission];
+                        }
+                    }
+                    
+                    return implode(', ', $displayPermissions);
+                }),
             ])
             ->setDisplaySearch(true)
             ->paginate(20);
-            // if (auth()->user()->isAdmin()) {
-            //     $display->setApply(function ($query) {
-            //         $query->where('id', auth()->id());
-            //     });
-            // }
-     
-        return $display;    
+
+        return $display;
     }
 
     public function isDeletable($model)
-        {
-            // Tylko administratorzy mogą usuwać rekordy
-            // return auth()->user()->isAdmin;
-            return true;
-        }
+    {
+        
+        return true;
+    }
 
-    /**
-     * Form for creating/editing users.
-     *
-     * @return FormInterface
-     */
     public function onEdit($id)
     {
         
         $pola = [
             \AdminFormElement::text('name', 'Nazwa')->required(),
-            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email')//->setReadonly(auth()->user()->role != 1)
-            ,
+            \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
+            \AdminFormElement::text('class', 'Klasa'),
+            \AdminFormElement::checkbox('active', 'Aktywny'),
 
         ];
 
         $pola[] = \AdminFormElement::password('password', 'Hasło');
-
-        $pola[]=             \AdminFormElement::select('permission', 'Rola', [
-            '1' => 'User',
-            '2' => 'Admin',
-            '4' => 'SuperAdmin',
         
-        ]);
+        $permissions = User::find($id)->allPermissions();
+        
+        // Make sure permissions is always an array
+        if (!is_array($permissions)) {
+            $permissions = $permissions ? explode(',', $permissions) : [];
+        }
+        
+        $pola[] = \AdminFormElement::multiselect('permission', 'Rola', [
+            User::PERMISSION_VPN_CLIENT => 'VPN',
+            User::PERMISSION_TASK => 'Task',
+            User::PERMISSION_PC => 'PC',
+            User::PERMISSION_EMAIL => 'Email',
+            User::PERMISSION_ADMIN => 'Admin',
+        ])->setDefaultValue($permissions);
+        
+        
 
 
-            // ->setStartHour(7)
-            // ->setEndHour(15)
-            // ->setReadonly(auth()->user()->role != 1)
-            // ->setValidationRules('required');
         return  \AdminForm::panel()->addBody($pola);
     }
+    
 
     public function onCreate()
-    {
-        return $this->onEdit(null);
-    }
+{
+    $pola = [
+        \AdminFormElement::text('name', 'Nazwa')->required(),
+        \AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
+        \AdminFormElement::text('class', 'Klasa'),
+        \AdminFormElement::checkbox('active', 'Aktywny')->setDefaultValue(true),
+        \AdminFormElement::password('password', 'Hasło')->required(),
+        
+        \AdminFormElement::multiselect('permission', 'Rola', [
+            User::PERMISSION_VPN_CLIENT => 'VPN',
+            User::PERMISSION_TASK => 'Task',
+            User::PERMISSION_PC => 'PC',
+            User::PERMISSION_EMAIL => 'Email',
+            User::PERMISSION_ADMIN => 'Admin',
+        ])
+    ];
+
+    return \AdminForm::panel()->addBody($pola);
+}
+
+public function onCreateAndEdit($id = null)
+{
+    $model = $id ? User::find($id) : null;
+    
+    return \AdminSection::getModelConfigValue(User::class, $id ? 'onEdit' : 'onCreate');
+}
+
 }

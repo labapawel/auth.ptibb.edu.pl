@@ -31,7 +31,7 @@
 
                     <!-- username Address -->
                     <div class="mb-4">
-                        <x-input-label for="username" :value="__('lang.logowanie.username')" class="text-gray-700 dark:text-gray-300" />
+                        <x-input-label for="username" :value="__('lang.logowanie.email')" class="text-gray-700 dark:text-gray-300" />
                         <x-text-input id="username" 
                                       class="block mt-1 w-full rounded-lg border-gray-300 dark:border-gray-600 
                                              focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" 

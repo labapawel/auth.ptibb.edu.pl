@@ -5,10 +5,13 @@ namespace App\Ldap;
 use LdapRecord\Models\Model;
 use LdapRecord\Models\Concerns\CanAuthenticate;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use LdapRecord\Models\Concerns\HasPassword;
 
 class User extends Model implements Authenticatable
 {
     use CanAuthenticate;
+    use HasPassword;
 
     /**
      * The object classes of the LDAP model.
@@ -46,6 +49,14 @@ class User extends Model implements Authenticatable
             'userPassword',
 
         ];
+        
+        public function setLdapPassword(string $password): void
+        {
+            $this->userPassword = $this->encodePassword($password);
+        }
 
-
+        protected function encodePassword(string $password): string
+        {
+            return '{SHA}' . base64_encode(sha1($password, true));
+        }
     }

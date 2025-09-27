@@ -287,7 +287,34 @@ class LdapUsersController extends Controller
             cache()->forget("user_groups_array_{$uid}");
         }
     }
+    public function changePassword(Request $request, $uid)
+    {
+        $user = LdapUser::where('uid', '=', $uid)->first();
+        if (!$user) {
+            return redirect()->route('ldap.users.index')->with('error', 'Użytkownik nie został znaleziony.');
+        }
 
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        try {
+            $user->setPassword($request->new_password);
+            Log::info('Próba zmiany hasła użytkownika LDAP', ['user' => $uid]);
+            $user->save();
+
+            return redirect()->route('ldap.users.index')
+                ->with('success', 'Hasło użytkownika LDAP zostało pomyślnie zmienione.');
+        } catch (\Exception $e) {
+            Log::error("Błąd podczas zmiany hasła użytkownika LDAP: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all(),
+            ]);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Wystąpił błąd podczas zmiany hasła użytkownika LDAP: ' . $e->getMessage());
+        }
+    }
     /**
      * Wyczyść cache LDAP po zmianach
      */

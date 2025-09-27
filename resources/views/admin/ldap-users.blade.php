@@ -13,7 +13,9 @@
             <button onclick="window.location.href='{{ route('ldap.users.create') }}'" type="button" class="admin-btn">
                 {{ __('lang.admin.add_user_btn') }}
             </button>
-
+            <button onclick="window.location.href='{{ route('ldap.users.createByCsv') }}'" type="button" class="admin-btn">
+                {{ __('lang.admin.add_user_by_csv_btn') }}
+            </button>
         </div>
     </div>
     

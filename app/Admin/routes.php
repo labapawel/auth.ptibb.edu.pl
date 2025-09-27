@@ -21,8 +21,14 @@ Route::middleware('admin')->group(function () {
 		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->create();
 	})->name('ldap.users.create');
 
+	Route::get('ldap/users/create-by-csv', function () {
+		return AdminSection::view(view('admin.ldap-users-create-by-csv')->render());
+	})->name('ldap.users.createByCsv');
+	Route::post('ldap/users/create-by-csv', function () {
+		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->createByCsv(request());
+	})->name('ldap.users.createByCsv');
 	Route::post('ldap/users', function () {
-		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->store(request());
+		return app(\App\Http\Controllers\Admin\LdapUsersController::class)->createUser(request());
 	})->name('ldap.users.store');
 
 	Route::delete('ldap/users/{distinguishedName}', function ($distinguishedName) {

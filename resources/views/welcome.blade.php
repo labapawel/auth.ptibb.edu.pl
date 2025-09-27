@@ -28,9 +28,7 @@
                                 <h2 class="text-lg font-semibold text-emerald-700 dark:text-emerald-400">Task Management</h2>
                                 <p class="mt-1 text-emerald-600 dark:text-emerald-300">You have task management permissions.</p>
                                 <div class="mt-3">
-                                    <a href="{{ route('tasks.index') }}" class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                                        Manage Tasks
-                                    </a>
+                                 
                                 </div>
                             </div>
                         @endif

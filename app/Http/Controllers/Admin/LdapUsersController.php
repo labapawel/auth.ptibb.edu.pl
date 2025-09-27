@@ -7,41 +7,11 @@ use Illuminate\Http\Request;
 use App\Ldap\User as LdapUser;
 use App\Ldap\Group;
 use Illuminate\Support\Facades\Log;
-
+use App\Jobs\CreateLdapUserJob as CreateLdapUser;
+use Illuminate\Support\Str;
 class LdapUsersController extends Controller
 {
 
-    /**
-     * Pobierz kolejny wolny numer uidNumber lub gidNumber z LDAP (zoptymalizowana wersja)
-     */
-    private function getNextNumber(string $attribute): int
-    {
-        // Cache numbers for better performance
-        static $cachedNumbers = [];
-        
-        if (!isset($cachedNumbers[$attribute])) {
-            $users = LdapUser::select(['uidnumber', 'gidnumber'])->get(); // Pobierz tylko potrzebne atrybuty
-            $numbers = $users->map(function ($user) use ($attribute) {
-                return (int) $user->getFirstAttribute($attribute) ?: 0;
-            })->filter()->toArray();
-            
-            $cachedNumbers[$attribute] = $numbers;
-        }
-        
-        $numbers = $cachedNumbers[$attribute];
-        $start = 1000;
-        $next = $numbers ? (max($numbers) + 1) : $start;
-        
-        // Walidacja unikalności
-        while (in_array($next, $numbers)) {
-            $next++;
-        }
-        
-        // Update cache
-        $cachedNumbers[$attribute][] = $next;
-        
-        return $next;
-    }
 
     /**
      * Pobierz użytkowników LDAP (zoptymalizowana wersja)
@@ -118,7 +88,7 @@ class LdapUsersController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public static function store(Request $request)
     {
         // Log wejścia do metody store
         Log::info('Wejście do metody store()', ['request' => $request->all()]);
@@ -132,60 +102,64 @@ class LdapUsersController extends Controller
             "groups" => "nullable|array",
             "groups.*" => "string|distinct",
         ]);
+        CreateLdapUser::dispatch($request->all());
 
+        return redirect()->route('ldap.users.index')->with('success', 'Zadanie tworzenia użytkownika zostało dodane do kolejki.');
+        
+    }
+    public function createUser(Request $request){
+        CreateLdapUser::dispatch($request->all());
+        return redirect()->route('ldap.users.index')->with('success', 'Zadanie tworzenia użytkownika zostało dodane do kolejki.');
+    }
+    public function createByCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
         try {
-            $user = LdapUser::create([
-                'cn'           => $request->cn,
-                'sn'           => $request->sn,
-                'givenname'    => $request->givenname,
-                'mail'         => $request->mail,
-                'displayname'  => $request->givenname . ' ' . $request->sn,
-                'uidNumber' => $this->getNextNumber('uidNumber'),
-                'gidNumber' => $this->getNextNumber('gidNumber'),
-                'uid'          => $request->uid,
-                'userpassword' => $request->userpassword,
-                'homedirectory'=> '/home/uczniowie/' . $request->uid,
-                'loginshell'   => '/bin/bash',
-            ]);
-
-            Log::info('Próba zapisu użytkownika do LDAP', ['attributes' => $user->getAttributes()]);
-            $user->save();
-
-            // Przypisz użytkownika do wybranych grup
-            if ($request->filled('groups')) {
-                Log::info('Przypisywanie użytkownika do grup', [
-                    'user' => $request->uid,
-                    'groups' => $request->groups
-                ]);
-                
-                foreach ($request->groups as $groupName) {
-                    $group = Group::where('cn', '=', $groupName)->first();
-                    if ($group) {
-                        $group->addMember($user);
-                        Log::info('Użytkownik przypisany do grupy', ['user' => $request->uid, 'group' => $groupName]);
-                    } else {
-                        Log::warning('Nie znaleziono grupy', ['group' => $groupName]);
+            $path = $request->file('csv_file')->getRealPath();
+            $data = array_map('str_getcsv', file($path));
+            $header = array_shift($data);
+            foreach ($data as $row) {
+                $row = array_combine($header, $row);
+                // Rozdziel klucz i wartość, jeśli są tabulatorami oddzielone
+                foreach ($row as $key => $value) {
+                    // Jeśli klucz zawiera tabulatory, rozbij na nagłówki
+                    if (strpos($key, "\t") !== false) {
+                        $values = explode("\t", $value);
+                        break;
                     }
                 }
-            } else {
-                Log::info('Brak grup do przypisania');
+                list($imie, $nazwisko) = array_pad(explode(' ', $values[0] ?? ''), 2, '');
+                $klasa = $values[1] ?? '';
+                $email = $values[2] ?? '';                
+                $values = [
+                    'cn' => trim($imie . '' . $nazwisko),
+                    'sn' => $nazwisko,
+                    'givenname' => $imie,
+                    'mail' => $email,
+                    'uid' => $email,
+                    'userpassword' => Str::random(50),
+                    'groups' => ["RDP",$klasa]
+                ];
+                CreateLdapUser::dispatch($values);
+                Log::info('Zadanie tworzenia użytkownika z CSV dodane do kolejki', ['user' => $row]);
             }
 
-            return redirect("admin/ldap/users")
-                ->with("success", "Użytkownik " . $request->cn ." został pomyślnie utworzony.");
+
+            return redirect()->route('ldap.users.index')->with('success', 'Użytkownicy zostali pomyślnie dodani.');
         } catch (\Exception $e) {
-            Log::error("Błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage(), [
+            Log::error("Błąd podczas dodawania użytkowników z pliku CSV: " . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all(),
             ]);
             return redirect()->back()
                 ->withInput()
-                ->with("error", "Wystąpił błąd podczas tworzenia użytkownika LDAP: " . $e->getMessage());
-        } finally {
-            // Wyczyść cache po dodaniu użytkownika
-            $this->clearLdapCache();
+                ->with("error", "Wystąpił błąd podczas dodawania użytkowników z pliku CSV: " . $e->getMessage());
         }
     }
+
+
 
     public function edit($uid)
     {
@@ -196,7 +170,7 @@ class LdapUsersController extends Controller
             }
 
             // Cache grup dla edycji na 10 minut
-            $groups = cache()->remember('ldap_groups_for_edit', 600, function () {
+            $groups = cache()->remember('ldap_groups_for_edit', 300, function () {
                 return app(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
             });
             
@@ -328,114 +302,4 @@ class LdapUsersController extends Controller
         cache()->forget('dashboard_ldap_groups_count');
     }
 
-    /**
-     * Endpoint do ręcznego czyszczenia cache
-     */
-    public function clearCache()
-    {
-        $this->clearLdapCache();
-        
-        // Wyczyść wszystkie cache użytkowników
-        $cacheKeys = [
-            'ldap_users_list',
-            'ldap_groups_for_create', 
-            'ldap_groups_for_edit',
-            'all_ldap_groups',
-            'dashboard_ldap_users_count',
-            'dashboard_ldap_groups_count',
-            'ldap_groups_list',
-            'ldap_users_for_group_create'
-        ];
-        
-        foreach ($cacheKeys as $key) {
-            cache()->forget($key);
-        }
-        
-        // Wyczyść cache grup użytkowników (wszystkie klucze z prefiksem)
-        $allCacheKeys = cache()->getRedis()->keys('*user_groups*');
-        foreach ($allCacheKeys as $key) {
-            cache()->forget($key);
-        }
-        
-        return redirect()->back()->with('success', 'Cache LDAP został wyczyszczony.');
-    }
-
-    /**
-     * Pobierz wszystkie grupy, do których należy użytkownik (zoptymalizowane)
-     */
-    public function getUserGroups($uid)
-    {
-        try {
-            $user = LdapUser::where('uid', '=', $uid)->first();
-            if (!$user) {
-                return response()->json(['error' => 'Użytkownik nie został znaleziony'], 404);
-            }
-
-            // Cache grup na 5 minut
-            $userGroups = cache()->remember("user_groups_{$uid}", 300, function () use ($uid) {
-                $allGroups = Group::all();
-                $userGroups = [];
-
-                foreach ($allGroups as $group) {
-                    $members = $group->getAttribute('memberuid') ?: [];
-                    if (in_array($uid, $members)) {
-                        $attributes = $group->getAttributes();
-                        $userGroups[] = [
-                            'cn' => $attributes['cn'][0] ?? '',
-                            'description' => $attributes['description'][0] ?? '',
-                            'gidnumber' => $attributes['gidnumber'][0] ?? '',
-                        ];
-                    }
-                }
-
-                return $userGroups;
-            });
-
-            Log::info('Pobrano grupy użytkownika', ['user' => $uid, 'groups_count' => count($userGroups)]);
-            
-            return response()->json([
-                'user' => $uid,
-                'groups' => $userGroups,
-                'groups_count' => count($userGroups)
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Błąd podczas pobierania grup użytkownika: ' . $e->getMessage(), ['user' => $uid]);
-            return response()->json(['error' => 'Wystąpił błąd podczas pobierania grup użytkownika: ' . $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Pobierz tablicę grup użytkownika (bez response JSON, zoptymalizowane)
-     */
-    public function getUserGroupsArray($uid)
-    {
-        try {
-            return cache()->remember("user_groups_array_{$uid}", 300, function () use ($uid) {
-                $user = LdapUser::where('uid', '=', $uid)->first();
-                if (!$user) {
-                    return [];
-                }
-
-                $userGroups = [];
-                $allGroups = Group::all();
-
-                foreach ($allGroups as $group) {
-                    $members = $group->getAttribute('memberuid') ?: [];
-                    if (in_array($uid, $members)) {
-                        $attributes = $group->getAttributes();
-                        $userGroups[] = [
-                            'cn' => $attributes['cn'][0] ?? '',
-                            'description' => $attributes['description'][0] ?? '',
-                            'gidnumber' => $attributes['gidnumber'][0] ?? '',
-                        ];
-                    }
-                }
-
-                return $userGroups;
-            });
-        } catch (\Exception $e) {
-            Log::error('Błąd podczas pobierania grup użytkownika (array): ' . $e->getMessage(), ['user' => $uid]);
-            return [];
-        }
-    }
 }

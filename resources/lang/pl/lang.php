@@ -46,6 +46,7 @@ return [
         'edit_ldap_user' => 'Edytuj użytkownika LDAP',
         'back_to_panel' => 'Powrót do panelu',
         'add_user_btn' => 'Dodaj użytkownika',
+        'add_user_by_csv_btn' => 'Dodaj użytkowników przez CSV',
         'confirm_delete_user' => 'Czy na pewno chcesz usunąć tego użytkownika?',
         'no_ldap_users' => 'Brak użytkowników LDAP.',
         'search_users' => 'Szukaj użytkowników',

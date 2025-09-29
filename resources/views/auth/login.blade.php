@@ -1,6 +1,6 @@
-<x-guest-layout>
-    <div class="flex flex-col items-center">
-        <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
+<x-app-layout>
+    <div class="flex justify-center pt-10 items-center">
+        <div class=" md:w-1/2  bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
             <!-- Left Section - Image/Branding -->
             <div class="hidden md:block md:w-1/2 bg-indigo-600 py-10 px-10">
                 <div class="text-white h-full flex flex-col justify-between">
@@ -88,4 +88,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-app-layout>

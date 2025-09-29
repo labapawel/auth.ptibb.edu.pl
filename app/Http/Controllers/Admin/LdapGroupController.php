@@ -132,7 +132,6 @@ class LdapGroupController extends Controller
                 ->with('error', 'Wystąpił błąd podczas tworzenia grupy LDAP: ' . $e->getMessage());
         } finally {
             // Wyczyść cache po utworzeniu grupy
-            $this->clearLdapCache();
         }
     }
 
@@ -215,7 +214,6 @@ class LdapGroupController extends Controller
                 ->with('error', 'Wystąpił błąd podczas aktualizacji grupy LDAP: ' . $e->getMessage());
         } finally {
             // Wyczyść cache po aktualizacji grupy
-            $this->clearLdapCache();
         }
     }
 
@@ -235,24 +233,7 @@ class LdapGroupController extends Controller
             return redirect()->route('ldap.groups.index')->with('error', 'Wystąpił błąd podczas usuwania grupy.');
         } finally {
             // Wyczyść cache po usunięciu grupy
-            $this->clearLdapCache();
         }
     }
 
-    /**
-     * Wyczyść cache LDAP po zmianach w grupach
-     */
-    private function clearLdapCache()
-    {
-        cache()->forget('ldap_groups_list');
-        cache()->forget('ldap_users_for_group_create');
-        cache()->forget('dashboard_ldap_groups_count');
-        cache()->forget('all_ldap_groups');
-        cache()->forget('ldap_groups_for_create');
-        cache()->forget('ldap_groups_for_edit');
-        
-        // Wyczyść również cache użytkowników, które mogą być powiązane
-        cache()->forget('ldap_users_list');
-        cache()->forget('dashboard_ldap_users_count');
-    }
 }

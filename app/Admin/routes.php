@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LdapUsersController;
-use App\Http\Controllers\LdapGroupController;
+use App\Http\Controllers\Admin\LdapUsersController;
+use App\Http\Controllers\Admin\LdapGroupController;
 use App\Ldap\Group;
 use App\Ldap\User as LdapUser;
 // Group all admin routes with the admin middleware

@@ -107,10 +107,14 @@ class LdapUsersController extends Controller
         return redirect()->route('ldap.users.index')->with('success', 'Zadanie tworzenia użytkownika zostało dodane do kolejki.');
         
     }
+
+
     public function createUser(Request $request){
         CreateLdapUser::dispatch($request->all());
         return redirect()->route('ldap.users.index')->with('success', 'Zadanie tworzenia użytkownika zostało dodane do kolejki.');
     }
+
+
     public function createByCsv(Request $request)
     {
         $request->validate([
@@ -256,11 +260,13 @@ class LdapUsersController extends Controller
                 ->with('error', 'Wystąpił błąd podczas aktualizacji użytkownika LDAP: ' . $e->getMessage());
         } finally {
             // Wyczyść cache po aktualizacji użytkownika
-            $this->clearLdapCache();
             cache()->forget("user_groups_{$uid}");
             cache()->forget("user_groups_array_{$uid}");
         }
     }
+
+
+
     public function changePassword(Request $request, $uid)
     {
         $user = LdapUser::where('uid', '=', $uid)->first();
@@ -288,18 +294,6 @@ class LdapUsersController extends Controller
                 ->withInput()
                 ->with('error', 'Wystąpił błąd podczas zmiany hasła użytkownika LDAP: ' . $e->getMessage());
         }
-    }
-    /**
-     * Wyczyść cache LDAP po zmianach
-     */
-    private function clearLdapCache()
-    {
-        cache()->forget('ldap_users_list');
-        cache()->forget('ldap_groups_for_create');
-        cache()->forget('ldap_groups_for_edit');
-        cache()->forget('all_ldap_groups');
-        cache()->forget('dashboard_ldap_users_count');
-        cache()->forget('dashboard_ldap_groups_count');
     }
 
 }

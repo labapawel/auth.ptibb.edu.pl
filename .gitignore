@@ -17,3 +17,26 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Docker deployment files to ignore
+.env.docker
+docker-compose.override.yml
+.dockerignore
+
+# Docker volumes and data
+/docker/mysql/data/
+/docker/logs/
+mysql_data/
+
+# Deployment logs and temporary files
+deploy.log
+*.backup
+backup.sql
+
+# Keep docker configuration files
+!/docker/
+!docker-compose.yml
+!Dockerfile
+!deploy.sh
+!deploy.bat
+!README-Docker.md

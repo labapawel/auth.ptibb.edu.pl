@@ -115,7 +115,7 @@ return [
         'login' => 'Zaloguj się',
         'forgot' => 'Zapomniałeś hasła lub chcesz je utworzyć?',
         'register' => 'Zarejestruj się',
-        'welcome_back' => 'Witamy ponownie',
+        'welcome_back' => 'Witamy na stronie logowania do konta PTI',
         'first_login_instruction' => 'Przed pierwszym logowaniem podaj swój adres e-mail. Wyślemy Ci link, który pozwoli Ci ustawić hasło do Twojego konta. Po ustawieniu hasła będziesz mógł się zalogować.',
         'login_account' => 'Zaloguj się na swoje konto',
         'restricted_access' => 'Dostęp tylko dla uprawnionych użytkowników',

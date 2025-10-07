@@ -1,67 +1,246 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Auth PTI - System Uwierzytelniania LDAP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+System uwierzytelniania dla Prywatnego Technikum Informatycznego integrujący Laravel z LDAP oraz panel administracyjny do zarządzania użytkownikami.
 
-## About Laravel
+## 📋 Spis treści
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Opis projektu](#opis-projektu)
+- [Funkcjonalności](#funkcjonalności)
+- [Technologie](#technologie)
+- [Wymagania](#wymagania)
+- [Instalacja](#instalacja)
+- [Konfiguracja](#konfiguracja)
+- [Zrzuty ekranu](#zrzuty-ekranu)
+- [Struktura projektu](#struktura-projektu)
+- [Licencja](#licencja)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Opis projektu
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Auth PTI to system uwierzytelniania zbudowany w Laravel, zaprojektowany specjalnie dla środowiska PTI, aby uczniowie mogli mieć własnego użytkownika w sali. System integruje się z serwerem LDAP, umożliwiając centralne zarządzanie użytkownikami i bezpieczne uwierzytelnianie.
 
-## Learning Laravel
+## ✨ Funkcjonalności
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🔐 System uwierzytelniania
+- **Logowanie LDAP** - integracja z serwerem katalogowym PTI
+- **Rate limiting** - ochrona przed atakami brute force
+- **Logowanie aktywności** - szczegółowe logi prób logowania
+- **Pamiętaj mnie** - opcja zapamiętania sesji
+- **Walidacja w czasie rzeczywistym** - błędy wyświetlane w formularzu
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 👥 Panel administracyjny
+- **Zarządzanie użytkownikami** - dodawanie, edycja, usuwanie użytkowników LDAP
+- **Intuicyjny interfejs** - nowoczesny design z Tailwind CSS
+- **Grupowanie użytkowników** - organizacja według jednostek organizacyjnych
+- **Wyszukiwanie i filtrowanie** - szybkie znajdowanie użytkowników
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🛡️ Bezpieczeństwo
+- **Szyfrowanie haseł** - bezpieczne przechowywanie danych
+- **Kontrola sesji** - zarządzanie sesjami użytkowników
+- **CSRF Protection** - ochrona przed atakami CSRF
 
-## Laravel Sponsors
+## 🚀 Technologie
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Backend**: Laravel 10.x, PHP 8.1+
+- **Frontend**: Blade Templates, Tailwind CSS
+- **LDAP**: LdapRecord package
+- **Admin Panel**: Custom Admin Package -oparte na SleepingOwl
+- **Database**: MySQL
+- **Containerization**: Docker & Docker Compose
 
-### Premium Partners
+## 📋 Wymagania
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL/PostgreSQL
+- Serwer LDAP
+- Docker (opcjonalnie)
 
-## Contributing
+## 🔧 Instalacja
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Standardowa instalacja
 
-## Code of Conduct
+```bash
+# Sklonuj repozytorium
+git clone https://github.com/labapawel/auth.ptibb.edu.pl.git
+cd auth.ptibb.edu.pl
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Zainstaluj zależności PHP
+composer install
 
-## Security Vulnerabilities
+# Zainstaluj zależności JavaScript
+npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Skopiuj plik środowiska
+cp .env.example .env
 
-## License
+# Wygeneruj klucz aplikacji
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# auth.ptibb.edu.pl
+# Skonfiguruj bazę danych i LDAP w .env
+# Uruchom migracje
+php artisan migrate
+
+# Zbuduj zasoby frontend
+npm run build
+
+# Uruchom serwer
+php artisan serve
+```
+
+### Instalacja z Docker
+
+```bash
+# Zbuduj i uruchom kontenery
+docker-compose up -d
+
+# Zainstaluj zależności w kontenerze
+docker-compose exec app composer install
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate
+```
+
+## ⚙️ Konfiguracja
+
+### Konfiguracja LDAP
+
+Edytuj plik `.env`:
+
+```env
+# Konfiguracja LDAP
+LDAP_HOST=ldap.example.edu.pl
+LDAP_USERNAME="cn=admin,dc=example,dc=edu,dc=pl"
+LDAP_PASSWORD=your_ldap_password
+LDAP_PORT=389
+LDAP_BASE_DN="dc=example,dc=edu,dc=pl"
+LDAP_TIMEOUT=5
+LDAP_SSL=false
+LDAP_TLS=false
+```
+
+### Konfiguracja bazy danych
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=auth_pti
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+## 📸 Zrzuty ekranu
+
+### Strona logowania
+![Strona logowania](public/startPage.png)
+
+Nowoczesna strona logowania z:
+- Responsywnym designem
+- Walidacją w czasie rzeczywistym
+- Obsługą błędów i komunikatów
+- Opcją "Pamiętaj mnie"
+- Linkiem do resetowania hasła oraz tworzenia konta Ldap po raz pierwszy
+
+### Panel administracyjny - Zarządzanie użytkownikami
+![Panel administracyjny](public/users.png)
+
+Zaawansowany panel do zarządzania użytkownikami zawierający:
+- Listę wszystkich użytkowników LDAP
+- Możliwość dodawania nowych użytkowników
+- Możliwość dodania użytkowników poprzez csv
+- Edycję istniejących kont
+- Wyszukiwanie i filtrowanie
+
+## 📁 Struktura projektu
+
+```
+laravel-auth-pti/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/Auth/          # Kontrolery uwierzytelniania
+│   │   ├── Requests/Auth/             # Walidacja żądań logowania
+│   │   └── Middleware/                # Middleware aplikacji
+│   ├── Ldap/                         # Modele LDAP
+│   │   ├── User.php                  # Model użytkownika LDAP
+│   │   ├── Group.php                 # Model grup LDAP
+│   │   └── OrganizationalUnit.php    # Model jednostek organizacyjnych
+│   ├── Models/                       # Modele Eloquent
+│   ├── Jobs/                         # Zadania w tle
+│   └── Mail/                         # Szablony email
+├── config/
+│   ├── auth.php                      # Konfiguracja uwierzytelniania
+│   ├── ldap.php                      # Konfiguracja LDAP
+│   └── sleeping_owl.php              # Konfiguracja panelu admin
+├── resources/
+│   ├── views/auth/                   # Widoki uwierzytelniania
+│   ├── lang/                         # Pliki językowe
+│   └── css/                          # Style CSS
+├── routes/
+│   ├── web.php                       # Trasy webowe
+│   └── auth.php                      # Trasy uwierzytelniania
+├── docker/                           # Konfiguracja Docker
+├── public/                          # Zasoby publiczne
+└── database/
+    ├── migrations/                   # Migracje bazy danych
+    └── seeders/                      # Dane testowe
+```
+
+## 🔒 Bezpieczeństwo
+
+### Funkcje bezpieczeństwa
+
+- **Rate Limiting**: Ograniczenie prób logowania (5 prób na użytkownika)
+- **CSRF Protection**: Ochrona przed atakami Cross-Site Request Forgery
+- **Session Security**: Bezpieczne zarządzanie sesjami użytkowników
+- **Password Hashing**: Bezpieczne hashowanie haseł
+- **SSL/TLS Support**: Obsługa szyfrowanego połączenia z LDAP
+- **Input Validation**: Walidacja wszystkich danych wejściowych
+- **Error Logging**: Szczegółowe logowanie błędów i prób logowania
+
+### Logowanie i monitoring
+
+Aplikacja loguje wszystkie istotne zdarzenia:
+
+```php
+// Przykłady logów w storage/logs/laravel.log
+[2025-10-07 10:30:15] local.INFO: Successful login for username: jkowalski from IP: 192.168.1.100
+[2025-10-07 10:30:45] local.INFO: Failed login attempt for username: admin from IP: 192.168.1.105
+[2025-10-07 10:31:00] local.WARNING: User jkowalski rate limited from IP: 192.168.1.100
+```
+
+## 🚀 Uruchamianie w produkcji
+
+### Konfiguracja serwera
+
+```bash
+# Optymalizacja dla produkcji
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan optimize
+
+# Ustawienia środowiska produkcyjnego
+APP_ENV=production
+APP_DEBUG=false
+```
+
+### Deployment
+
+Projekt zawiera skrypty deployment:
+
+```bash
+# Linux/Mac
+./deploy.sh
+
+# Windows
+deploy.bat
+```
+### Przyszłe kroki:
+
+- Testy jednostkowe
+- Więcej możliwości w grupach - admin page
+- przerzucenie crud'ów wszystkich na workera (aktualnie tylko userzy są)
+
+---
+
+**Auth PTI** - Bezpieczne uwierzytelnianie dla środowiska szkolnego 🎓

@@ -8,6 +8,7 @@
         "php": "^8.1",
         "directorytree/ldaprecord-laravel": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
+        "innoge/laravel-msgraph-mail": "^1.4",
         "labapawel/admin": "dev-development",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",

@@ -12,16 +12,21 @@ class TokenController extends Controller
     #creating Token and storing in db
     public static function store(User $ldapUser)
     {
+        $email = $ldapUser->getAttributes()['uid'][0];
+        
+        // Usuń stary token dla tego emaila jeśli istnieje
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+        
         $token = Str::random(80);
         DB::table('password_reset_tokens')->insert([
             'token' => $token,
-                'email' => $ldapUser->getAttributes()['uid'][0],
-                'created_at'=> now(),
-           ]);
-            $resetLink = route('password.reset', [
-                'token' => $token,
-                'email' => $ldapUser->getAttributes()['uid'][0],
-                ]);
+            'email' => $email,
+            'created_at'=> now(),
+        ]);
+        $resetLink = route('password.reset', [
+            'token' => $token,
+            'email' => $email,
+        ]);
 
 
         return $resetLink;

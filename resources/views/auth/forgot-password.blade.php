@@ -1,8 +1,8 @@
-<x-guest-layout>
+<x-app-layout>
     <div class="flex flex-col items-center">
-        <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
+        <div class="w-1/2 mt-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
             <!-- Left Section - Image/Branding -->
-            <div class="hidden md:block md:w-1/2 bg-indigo-600 py-10 px-10">
+            <div class="hidden md:block md:w-1/2  py-6 bg-indigo-600 py-10 px-10">
                 <div class="text-white h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-3xl font-bold mb-6">{{ __('lang.forgot_password.reset_your_password') }}</h2>
@@ -15,12 +15,6 @@
 
             <!-- Right Section - Reset Form -->
             <div class="md:w-1/2 py-8 px-6 md:px-10">
-                <div class="flex justify-center md:justify-start mb-8">
-                    <a href="/">
-                        <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                    </a>
-                </div>
-
                 <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">{{ __('lang.forgot_password.password_recovery') }}</h3>
 
                 <!-- Session Status -->
@@ -57,4 +51,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-app-layout>

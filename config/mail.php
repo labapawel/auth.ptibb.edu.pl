@@ -2,7 +2,7 @@
 
 return [
 
-    'default' => env('MAIL_MAILER', 'microsoft'),
+    'default' => env('MAIL_MAILER', 'microsoft-graph'),
 
     'mailers' => [
         'smtp' => [
@@ -16,11 +16,15 @@ return [
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
-        'microsoft' => [
-            'transport' => 'microsoft',
+        'microsoft-graph' => [
+            'transport' => 'microsoft-graph',
             'client_id' => env('MICROSOFT_GRAPH_CLIENT_ID'),
             'client_secret' => env('MICROSOFT_GRAPH_CLIENT_SECRET'),
             'tenant_id' => env('MICROSOFT_GRAPH_TENANT_ID'),
+            'from' => [
+                'address' => env('MAIL_FROM_ADDRESS', 'wyslaniec@ptibb.edu.pl'),
+                'name' => env('MAIL_FROM_NAME', 'Prywatne Technikum Informatyczne'),
+            ],
             'redirect' => env('MICROSOFT_GRAPH_REDIRECT_URI'),
         ],
         'ses' => [

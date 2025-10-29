@@ -1,0 +1,42 @@
+server {
+    listen 80;
+    server_name _;
+
+    root /var/www/html/public;
+    index index.php index.html index.htm;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+
+    # Increase upload size
+    client_max_body_size 50M;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass app:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param HTTP_PROXY "";
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    # static files cache
+    location ~* \.(jpg|jpeg|png|gif|css|js|ico|webp|tiff|ttf|svg)$ {
+        access_log off;
+        log_not_found off;
+        expires 30d;
+    }
+}

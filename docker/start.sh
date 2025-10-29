@@ -24,4 +24,11 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Start Apache in foreground
-apache2-foreground
+# If php-fpm is available, run it in foreground. Otherwise, fall back to apache (compat)
+if command -v php-fpm >/dev/null 2>&1; then
+    # Run php-fpm in foreground
+    exec php-fpm -F
+else
+    # Fallback (if image still provides apache)
+    exec apache2-foreground
+fi

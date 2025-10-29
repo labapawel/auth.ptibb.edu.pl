@@ -1,53 +1,75 @@
-# Use the official PHP image with Apache
-FROM php:8.2-apache
-
-# Set working directory
+### Production-ready multi-stage Dockerfile
+### Builder stage: install dev tools, composer and node, build assets
+FROM php:8.2-cli AS builder
 WORKDIR /var/www/html
 
-# Install system dependencies
+# system deps for building PHP extensions and node builds
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    zip \
+    unzip \
+    libzip-dev \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    zip \
-    unzip \
+    libldap2-dev \
+    ca-certificates \
     nodejs \
     npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Composer binary from official image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy existing application directory contents
+# Copy app sources and install PHP & JS deps
 COPY . /var/www/html
+# Enable building required PHP extensions (ldap) in builder so composer can satisfy ext requirements
+RUN docker-php-ext-install ldap || true
 
-# Copy custom Apache configuration
-COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+# Avoid 'dubious ownership' errors when building in Docker context
+RUN git config --global --add safe.directory /var/www/html || true
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
-
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Install Node.js dependencies and build assets
+# Install PHP dependencies (production) and build assets
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 RUN npm ci && npm run build
 
-# Create startup script
+### Final stage: minimal runtime image with PHP-FPM
+FROM php:8.2-fpm
+WORKDIR /var/www/html
+
+# Install only runtime deps required for PHP extensions (LDAP, GD, etc.)
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libldap2-dev \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install required PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip ldap
+
+# Copy built application from builder
+COPY --from=builder /var/www/html /var/www/html
+
+# Ensure permissions for runtime (www-data)
+RUN chown -R www-data:www-data /var/www/html \
+    && find /var/www/html -type f -exec chmod 644 {} + \
+    && find /var/www/html -type d -exec chmod 755 {} + \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy start script and make executable
 COPY docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-# Expose port 80
-EXPOSE 80
+# Run as non-root user for improved security
+USER www-data
 
-# Start Apache
+# Expose php-fpm port to other services (not to host)
+EXPOSE 9000
+
+# Start the container with the start script (it will launch php-fpm)
 CMD ["/usr/local/bin/start.sh"]

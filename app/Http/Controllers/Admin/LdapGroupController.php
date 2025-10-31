@@ -61,7 +61,21 @@ class LdapGroupController extends Controller
             Log::error('Błąd podczas pobierania grup LDAP: ' . $e->getMessage());
             return response()->json(["error" => "Nie można połączyć się z serwerem LDAP: " . $e->getMessage()], 500);
         }
-    }    public function show($cn)
+    }
+
+    /**
+     * Strona listy grup (AdminSection view)
+     */
+    public function index()
+    {
+        $groupsResponse = $this->getGroups();
+        $groups = method_exists($groupsResponse, 'getData') ? $groupsResponse->getData() : [];
+        return \AdminSection::view(view('admin.ldap-groups', [
+            'groups' => $groups
+        ])->render());
+    }
+
+    public function show($cn)
     {
         $group = Group::where('cn', '=', $cn)->first();
         if (!$group) {
@@ -81,7 +95,7 @@ class LdapGroupController extends Controller
     {
         try {
             $users = LdapUser::all();
-            return view('admin.ldap-group-create', compact('users'));
+            return \AdminSection::view(view('admin.ldap-group-create', compact('users'))->render());
         } catch (\Exception $e) {
             return back()->with('error', 'Nie można pobrać listy użytkowników: ' . $e->getMessage());
         }

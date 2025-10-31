@@ -11,8 +11,14 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Assets -->
+        @if (file_exists(public_path('build/manifest.json')))
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            <!-- Fallback for missing built assets: Tailwind + flag-icons via CDN -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.1/css/flag-icons.min.css">
+            <script src="https://cdn.tailwindcss.com"></script>
+        @endif
     </head>
     <body class="font-sans antialiased">
         <div class=" bg-gray-100 dark:bg-gray-900">

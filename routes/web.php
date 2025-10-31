@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LangController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\FallbackController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,23 +19,19 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('lang/{lang}', function ($lang) {
-    session(['locale' => $lang]);
-    app()->setLocale($lang);
-    return back();
-});
+Route::get('lang/{lang}', [LangController::class, 'switch'])->name('lang.switch');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        if(auth()->user()->isAdmin()) {
-            return redirect()->route('admin');
-        } else {
-            return view('welcome');
-        }
-    })->name('welcome');
+    Route::get('/', [HomeController::class, 'index'])->name('welcome');
 
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 require __DIR__.'/auth.php';
+
+// Fallback for any unmatched web routes: redirect guests to login, users to home
+Route::fallback(FallbackController::class);
+
+// Extra catch-all as a safety net (ensures redirect even when fallback is bypassed by web server quirks)
+Route::any('{any}', FallbackController::class)->where('any', '.*');

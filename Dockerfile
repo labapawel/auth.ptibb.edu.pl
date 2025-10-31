@@ -31,7 +31,10 @@ RUN docker-php-ext-install ldap || true
 RUN git config --global --add safe.directory /var/www/html || true
 
 # Install PHP dependencies (production) and build assets
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Try a strict install from lock; if the lock is out of sync, fall back to update to unblock the build.
+# Skip composer scripts in the builder to avoid running artisan during build (route cache/closures issues).
+RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction --prefer-dist \
+ || composer update --no-dev --no-scripts --optimize-autoloader --no-interaction --prefer-dist
 RUN npm ci && npm run build
 
 ### Final stage: minimal runtime image with PHP-FPM

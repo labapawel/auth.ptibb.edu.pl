@@ -67,6 +67,23 @@ class LdapUsersController extends Controller
             return collect(); // Zwróć pustą kolekcję w przypadku błędu
         }
     }
+    
+    /**
+     * Strona listy użytkowników (AdminSection view) — bez Closures w trasach
+     */
+    public function index()
+    {
+        $users = $this->getUsersForView();
+        return \AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
+    }
+
+    /**
+     * Formularz dodawania użytkowników przez CSV (AdminSection view)
+     */
+    public function createByCsvForm()
+    {
+        return \AdminSection::view(view('admin.ldap-users-create-by-csv')->render());
+    }
     public function create()
     {
         try {
@@ -236,6 +253,8 @@ class LdapUsersController extends Controller
                     } else {
                         Log::warning('Nie znaleziono grupy podczas aktualizacji', ['group' => $groupName]);
                     }
+
+                    
                 }
             } else {
                 // If no groups selected, remove user from all (zoptymalizowane)
@@ -296,4 +315,58 @@ class LdapUsersController extends Controller
         }
     }
 
+    /**
+     * Usunięcie użytkownika na podstawie DN (oraz odpięcie go od grup)
+     */
+    public function destroyByDn(string $distinguishedName)
+    {
+        $decoded = str_replace('%20', ' ', $distinguishedName);
+        $user = LdapUser::where('cn', '=', $decoded)->first();
+        if ($user) {
+            // Usuń użytkownika ze wszystkich grup
+            $groups = Group::whereHas('members', function ($query) use ($user) {
+                $query->where('dn', '=', $user->getDn());
+            })->get();
+
+            foreach ($groups as $group) {
+                $group->members()->detach($user);
+                $group->save();
+            }
+
+            $user->delete();
+        }
+
+        return redirect('admin/ldap/users')->with('success', 'Użytkownik '. ($user ? $decoded : '') .' został usunięty.');
+    }
+
+    /**
+     * Przypisanie użytkownika do grup (minimalna wersja — oczekuje 'groups' w żądaniu)
+     */
+    public function assignToGroup(string $userDn, Request $request)
+    {
+        $user = LdapUser::where('dn', '=', $userDn)->first();
+        if (!$user) {
+            return back()->with('error', 'Nie znaleziono użytkownika.');
+        }
+
+        $request->validate([
+            'groups' => 'required|array',
+            'groups.*' => 'string',
+        ]);
+
+        $allGroups = Group::all();
+        // Najpierw usuń ze wszystkich grup
+        foreach ($allGroups as $existingGroup) {
+            $existingGroup->removeMember($user);
+        }
+        // Następnie dodaj do wskazanych
+        foreach ($request->groups as $groupName) {
+            $group = $allGroups->firstWhere('cn', $groupName);
+            if ($group) {
+                $group->addMember($user);
+            }
+        }
+
+        return back()->with('success', 'Zaktualizowano przynależność użytkownika do grup.');
+    }
 }

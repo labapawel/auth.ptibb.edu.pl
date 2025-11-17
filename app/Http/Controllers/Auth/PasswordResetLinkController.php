@@ -35,6 +35,12 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
         ]);
+        try {
+            // Połączenie z LDAP
+            $ldapConnection = User::getLdapConnection();
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => __('Nie można połączyć się z serwerem LDAP. Skontaktuj się z administracją.')]);
+        }
         $ldapUser = User::where('uid', $request->input('email'))->first();
 
         if (!$ldapUser->exists) {

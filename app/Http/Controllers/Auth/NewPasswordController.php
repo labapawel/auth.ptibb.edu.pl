@@ -57,6 +57,12 @@ class NewPasswordController extends Controller
                 ->withErrors(['email' => __('Token wygasł. Wygeneruj nowy link do resetowania hasła.')]);
         }
         try {
+            try {
+                // Połączenie z LDAP
+                $ldapConnection = User::getLdapConnection();
+            } catch (\Exception $e) {
+                return back()->withErrors(['email' => __('Nie można połączyć się z serwerem LDAP. Sprawdź konfigurację.')]);
+            }
             $ldapUser = User::where('uid', $request->input('email'))->first();
 
             if (!$ldapUser) {

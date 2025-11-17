@@ -1,13 +1,13 @@
 <x-app-layout>
-    <div class="flex flex-col items-center">
-        <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
+    <div class="flex justify-center pt-10 items-center">
+        <div class=" md:w-1/2  bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
             <!-- Left Section - Image/Branding -->
             <div class="hidden md:block md:w-1/2 bg-indigo-600 py-10 px-10">
                 <div class="text-white h-full flex flex-col justify-between">
                     <div>
                         <h2 class="text-3xl font-bold mb-6">{{ __('lang.forgot_password.reset_your_password') }}</h2>
                         <div class="mb-6 text-white">
-                            {{ __('lang.forgot_password.forgot_password_message') }}
+                            {{ __('lang.forgot_password.forgot_password_message') }}dsadasdas
                         </div>
                     </div>
                 </div>
@@ -57,4 +57,5 @@
             </div>
         </div>
     </div>
+    
 </x-app-layout>

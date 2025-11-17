@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
     <div class="flex flex-col items-center">
         <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
             <!-- Left Section - Image/Branding -->
@@ -57,4 +57,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-app-layout>

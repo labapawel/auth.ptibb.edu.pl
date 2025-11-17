@@ -9,10 +9,10 @@
         "directorytree/ldaprecord-laravel": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
         "labapawel/admin": "dev-development",
+        "laravel/breeze": "*",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "laravel/breeze": "^1.29",
         "outhebox/blade-flags": "^1.5"
     },
     "require-dev": {

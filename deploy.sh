@@ -45,6 +45,13 @@ fi
 
 docker compose up -d
 
+# Sync freshly built Vite assets from the PHP container back to the host
+# so nginx (which serves the bind-mounted source tree) can find the hashed files.
+echo "🎨 Syncing compiled frontend assets..."
+rm -rf public/build
+docker compose cp app:/var/www/html/public/build ./public >/dev/null
+chown -R $(id -u):$(id -g) public/build
+
 # Wait for database to be ready (poll mysqladmin inside the db container)
 echo "⏳ Waiting for database to be ready..."
 until docker compose exec db bash -lc 'mysqladmin ping -uroot -p"$MYSQL_ROOT_PASSWORD" >/dev/null 2>&1' ; do

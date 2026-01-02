@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VerifyVPNuser;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,5 @@ use App\Http\Controllers\Api\UserController;
 */
 
 Route::middleware('auth:sanctum')->get('/user', [UserController::class, 'show']);
+
+Route::get("vpn/verify-user-vpn",[VerifyVPNuser::class, "verify"]);

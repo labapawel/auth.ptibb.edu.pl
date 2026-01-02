@@ -35,13 +35,20 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
         ]);
+        try {
+            // Połączenie z LDAP
+            $ldapUser = User::where('uid', $request->input('email'))->first();
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => __('Nie można połączyć się z serwerem LDAP. Skontaktuj się z administracją.')]);
+        }
         $ldapUser = User::where('uid', $request->input('email'))->first();
 
-        if (!$ldapUser->exists) {
+        if (!$ldapUser || !$ldapUser->exists) {
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => __('Email jest niepoprawny lub użytkownik nie istnieje.')]);
         }else{
             TokenController::deleteExpiredTokens();
+            TokenController::deleteTokenForUser($ldapUser);
             $resetLink = TokenController::store($ldapUser);
 
             Mail::to(($ldapUser)->getAttributes()['uid'][0])->send(new ForgotPasswordMail($resetLink));

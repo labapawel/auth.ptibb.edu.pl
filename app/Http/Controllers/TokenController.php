@@ -48,6 +48,11 @@ class TokenController extends Controller
             ->delete();
         return $expiredTokens;
     }
+    public static function deleteTokenForUser(User $ldapUser){
+        DB::table('password_reset_tokens')
+            ->where('email', $ldapUser->getAttributes()['uid'][0])
+            ->delete();
+    }
 
     #checking if token is still valid
     public static function isTokenValid($tokenData){

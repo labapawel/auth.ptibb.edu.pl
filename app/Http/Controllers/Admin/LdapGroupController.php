@@ -64,15 +64,15 @@ class LdapGroupController extends Controller
     }
 
     /**
-     * Strona listy grup (AdminSection view)
+     * Strona listy grup w panelu administratora
      */
     public function index()
     {
         $groupsResponse = $this->getGroups();
         $groups = method_exists($groupsResponse, 'getData') ? $groupsResponse->getData() : [];
-        return \AdminSection::view(view('admin.ldap-groups', [
-            'groups' => $groups
-        ])->render());
+        return view('admin.ldap-groups', [
+            'groups' => $groups,
+        ]);
     }
 
     public function show($cn)
@@ -85,17 +85,17 @@ class LdapGroupController extends Controller
         $users = $group->getMembers();
         $groupAttributes = $group->getAttributes();
         
-        return \AdminSection::view(view('admin.ldap-group-show', [
+        return view('admin.ldap-group-show', [
             'group' => $groupAttributes,
-            'users' => $users
-        ])->render());
+            'users' => $users,
+        ]);
     }
 
     public function create()
     {
         try {
             $users = LdapUser::all();
-            return \AdminSection::view(view('admin.ldap-group-create', compact('users'))->render());
+            return view('admin.ldap-group-create', compact('users'));
         } catch (\Exception $e) {
             return back()->with('error', 'Nie można pobrać listy użytkowników: ' . $e->getMessage());
         }
@@ -164,10 +164,10 @@ class LdapGroupController extends Controller
         
         $groupAttributes = $group->getAttributes();
         
-        return \AdminSection::view(view('admin.ldap-group-edit', [
+        return view('admin.ldap-group-edit', [
             'group' => $groupAttributes,
-            'users' => $users
-        ])->render());
+            'users' => $users,
+        ]);
     }
 
     public function update(Request $request, $cn)

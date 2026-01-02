@@ -8,6 +8,6 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        return \AdminSection::view(view('admin.dashboard')->render());
+        return view('admin.dashboard');
     }
 }

@@ -69,20 +69,20 @@ class LdapUsersController extends Controller
     }
     
     /**
-     * Strona listy użytkowników (AdminSection view) — bez Closures w trasach
+     * Strona listy użytkowników w panelu administratora
      */
     public function index()
     {
         $users = $this->getUsersForView();
-        return \AdminSection::view(view('admin.ldap-users', ['users' => $users])->render());
+        return view('admin.ldap-users', ['users' => $users]);
     }
 
     /**
-     * Formularz dodawania użytkowników przez CSV (AdminSection view)
+     * Formularz dodawania użytkowników przez CSV w panelu administratora
      */
     public function createByCsvForm()
     {
-        return \AdminSection::view(view('admin.ldap-users-create-by-csv')->render());
+        return view('admin.ldap-users-create-by-csv');
     }
     public function create()
     {
@@ -98,10 +98,10 @@ class LdapUsersController extends Controller
                 });
             });
             
-            return \AdminSection::view(view("admin.ldap-users-create", compact('groups'))->render());
+            return view('admin.ldap-users-create', compact('groups'));
         } catch (\Exception $e) {
             Log::error('Błąd podczas ładowania formularza tworzenia użytkownika: ' . $e->getMessage());
-            return \AdminSection::view(view("admin.ldap-users-create", ['groups' => []])->render());
+            return view('admin.ldap-users-create', ['groups' => []]);
         }
     }
 
@@ -195,7 +195,7 @@ class LdapUsersController extends Controller
                 return app(\App\Http\Controllers\Admin\LdapGroupController::class)->getGroups()->getData();
             });
             
-            return \AdminSection::view(view('admin.ldap-users-edit', compact('user', 'groups'))->render());
+            return view('admin.ldap-users-edit', compact('user', 'groups'));
         } catch (\Exception $e) {
             Log::error('Błąd podczas ładowania formularza edycji użytkownika: ' . $e->getMessage());
             return redirect()->route('ldap.users.index')->with('error', 'Wystąpił błąd podczas ładowania danych użytkownika.');

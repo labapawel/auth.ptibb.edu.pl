@@ -21,22 +21,49 @@
         @endif
     </head>
     <body class="font-sans antialiased">
-        <div class=" bg-gray-100 dark:bg-gray-900">
-            <!-- Navbar z flagami języków -->
-            <nav class="flex items-center justify-end gap-2  dark:bg-gray-800 dark:border-gray-700">
-                    
-                    <x-language-switcher-btn />
-            </nav>
-            <!-- Sidebar Navigation -->
-            <div class="flex">
-                <!-- Main Content -->
-                <div class="flex-1">    
-                    <!-- Main Content -->
-                    <main class="flex-1 ">
-                        @yield('content') 
-                    </main>
+        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+            @php
+                $navItems = [
+                    ['route' => 'admin.dashboard', 'label' => __('lang.admin.dashboard')],
+                    ['route' => 'ldap.users.index', 'label' => __('lang.admin.ldap_users')],
+                    ['route' => 'ldap.groups.index', 'label' => __('lang.admin.ldap_groups')],
+                    ['route' => 'admin.pc', 'label' => __('lang.admin.pc')],
+                ];
+            @endphp
+
+            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div class="flex flex-col md:flex-row md:items-center md:gap-6">
+                        <a href="{{ route('admin.dashboard') }}" class="text-xl font-semibold text-gray-800 dark:text-white">
+                            {{ config('app.name', 'PTI Auth') }}
+                        </a>
+                        <nav class="flex flex-wrap items-center gap-3 text-sm">
+                            @foreach ($navItems as $item)
+                                <a
+                                    href="{{ route($item['route']) }}"
+                                    @class([
+                                        'px-3 py-2 rounded-md transition-colors',
+                                        'bg-indigo-600 text-white' => request()->routeIs($item['route']),
+                                        'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' => !request()->routeIs($item['route']),
+                                    ])
+                                >
+                                    {{ $item['label'] }}
+                                </a>
+                            @endforeach
+                        </nav>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <x-language-switcher-btn />
+                        <a href="{{ route('admin.logout') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
+                            {{ __('lang.admin.logout') }}
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                @yield('content')
+            </main>
         </div>
     </body>
 </html>

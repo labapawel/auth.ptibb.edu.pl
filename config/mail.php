@@ -2,7 +2,7 @@
 
 return [
 
-    'default' => env('MAIL_MAILER', 'microsoft'),
+    'default' => env('MAIL_MAILER', 'microsoft-graph'),
 
     'mailers' => [
         'smtp' => [
@@ -16,17 +16,6 @@ return [
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
-        'microsoft' => [
-            'transport' => 'microsoft',
-            'client_id' => env('MICROSOFT_GRAPH_CLIENT_ID'),
-            'client_secret' => env('MICROSOFT_GRAPH_CLIENT_SECRET'),
-            'tenant_id' => env('MICROSOFT_GRAPH_TENANT_ID'),
-            'redirect' => env('MICROSOFT_GRAPH_REDIRECT_URI'),
-        ],
-        'ses' => [
-            'transport' => 'ses',
-        ],
-
         'postmark' => [
             'transport' => 'postmark',
             // 'message_stream_id' => null,

@@ -8,7 +8,6 @@ class PcController extends Controller
 {
     public function index()
     {
-        $content = 'PC Management';
-        return \AdminSection::view($content, 'PC');
+        return view('admin.pc');
     }
 }
